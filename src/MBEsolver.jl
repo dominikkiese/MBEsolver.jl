@@ -32,22 +32,22 @@ module MBEsolver
         U       = 5.75
         V       = 2.0
         D       = 10.0
-        num_G   = 64 
-        num_Σ   = 32  
+        num_G   = 64
+        num_Σ   = 12  
         num_P   = 32  
         num_λ_w = 16  
         num_λ_v = 12 
-        num_M_w = 12
-        num_M_v = 8 
+        num_M_w = 6
+        num_M_v = 4 
 
         # build the solver 
         S = Solver(T, U, V, D, num_G, num_Σ, num_P, num_λ_w, num_λ_v, num_M_w, num_M_v)
 
         # calculate the symmetry groups 
-        sym_λ_p = MatsubaraSymmetryGroup([MatsubaraSymmetry{2, 1}(s1_λ_p), MatsubaraSymmetry{2, 1}(s2_λ_p)], S.λ_S)
-        sym_λ_d = MatsubaraSymmetryGroup([MatsubaraSymmetry{2, 1}(s1_λ_d), MatsubaraSymmetry{2, 1}(s2_λ_d)], S.λ_D)
-        sym_M_p = MatsubaraSymmetryGroup([MatsubaraSymmetry{3, 1}(s1_M_p), MatsubaraSymmetry{3, 1}(s2_M_p), MatsubaraSymmetry{3, 1}(s3_M_p), MatsubaraSymmetry{3, 1}(s4_M_p)], S.M_S)
-        sym_M_d = MatsubaraSymmetryGroup([MatsubaraSymmetry{3, 1}(s1_M_d), MatsubaraSymmetry{3, 1}(s2_M_d), MatsubaraSymmetry{3, 1}(s3_M_d)], S.M_D)
+        sym_λ_p = [MatsubaraSymmetry{2, 1}(s1_λ_p), MatsubaraSymmetry{2, 1}(s2_λ_p)]
+        sym_λ_d = [MatsubaraSymmetry{2, 1}(s1_λ_d), MatsubaraSymmetry{2, 1}(s2_λ_d)]
+        sym_M_p = [MatsubaraSymmetry{3, 1}(s1_M_p), MatsubaraSymmetry{3, 1}(s2_M_p), MatsubaraSymmetry{3, 1}(s3_M_p), MatsubaraSymmetry{3, 1}(s4_M_p)]
+        sym_M_d = [MatsubaraSymmetry{3, 1}(s1_M_d), MatsubaraSymmetry{3, 1}(s2_M_d), MatsubaraSymmetry{3, 1}(s3_M_d)]
         init_sym_grp!(S, sym_λ_p, sym_λ_d, sym_M_p, sym_M_d)
 
         # execute fixed-point kernel 

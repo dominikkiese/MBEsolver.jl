@@ -34,6 +34,12 @@ mutable struct Solver
     λ_D_dummy :: MatsubaraFunction{2, 1, 3, Float64}
     λ_M_dummy :: MatsubaraFunction{2, 1, 3, Float64}
 
+    # buffers for irreducible vertices
+    T_S :: MatsubaraFunction{3, 1, 4, Float64}
+    T_T :: MatsubaraFunction{3, 1, 4, Float64}
+    T_D :: MatsubaraFunction{3, 1, 4, Float64}
+    T_M :: MatsubaraFunction{3, 1, 4, Float64}
+
     # multiboson vertices and their buffers for inplace calculations
     M_S       :: MatsubaraFunction{3, 1, 4, Float64}
     M_T       :: MatsubaraFunction{3, 1, 4, Float64}
@@ -47,6 +53,8 @@ mutable struct Solver
     # vertex symmetry groups
     SG_λ_p :: MatsubaraSymmetryGroup 
     SG_λ_d :: MatsubaraSymmetryGroup
+    SG_T_p :: MatsubaraSymmetryGroup 
+    SG_T_d :: MatsubaraSymmetryGroup
     SG_M_p :: MatsubaraSymmetryGroup 
     SG_M_d :: MatsubaraSymmetryGroup
 
@@ -69,6 +77,12 @@ mutable struct Solver
         tol     :: Float64 = 1e-4,   
         maxiter :: Int64   = 100
         )       :: Solver
+
+        # sanity checks 
+        @assert num_Σ <= num_λ_v "num_Σ <= num_λ_v required"
+        @assert num_λ_w > num_λ_v "num_λ_w > num_λ_v required"
+        @assert num_λ_v > num_M_w + num_M_v "num_λ_v > num_M_w + num_M_v required"
+        @assert num_M_w > num_M_v "num_M_w > num_M_v required"
 
         # initialization of G0 and G 
         grid_G = MatsubaraGrid(T, num_G, Fermion)
@@ -112,6 +126,18 @@ mutable struct Solver
         set!(λ_D, 1.0) 
         set!(λ_M, 1.0)
 
+        # initialization of T 
+        grid_T = MatsubaraGrid(T, num_λ_w + num_λ_v + num_P, Fermion)
+        T_S    = MatsubaraFunction((grid_λ_w, grid_T, grid_λ_v), 1, Float64)
+        T_T    = MatsubaraFunction((grid_λ_w, grid_T, grid_λ_v), 1, Float64)
+        T_D    = MatsubaraFunction((grid_λ_w, grid_λ_v, grid_T), 1, Float64)
+        T_M    = MatsubaraFunction((grid_λ_w, grid_λ_v, grid_T), 1, Float64)
+
+        set!(T_S, 0.0)
+        set!(T_T, 0.0)
+        set!(T_D, 0.0)
+        set!(T_M, 0.0)
+
         # initialization of M
         grid_M_w  = MatsubaraGrid(T, num_M_w, Boson)
         grid_M_v  = MatsubaraGrid(T, num_M_v, Fermion)
@@ -140,6 +166,8 @@ mutable struct Solver
         # dummy initialization of symmetry groups 
         SG_λ_p = MatsubaraSymmetryGroup(λ_S)
         SG_λ_d = deepcopy(SG_λ_p)
+        SG_T_p = MatsubaraSymmetryGroup(T_S)
+        SG_T_d = deepcopy(SG_T_p)
         SG_M_p = MatsubaraSymmetryGroup(M_S)
         SG_M_d = deepcopy(SG_M_p)
 
@@ -149,8 +177,9 @@ mutable struct Solver
                 P_S, P_D, P_M, 
                 η_S, η_D, η_M, 
                 λ_S, λ_D, λ_M, λ_S_dummy, λ_D_dummy, λ_M_dummy, 
+                T_S, T_T, T_D, T_M,
                 M_S, M_T, M_D, M_M, M_S_dummy, M_T_dummy, M_D_dummy, M_M_dummy,
-                SG_λ_p, SG_λ_d, SG_M_p, SG_M_d)
+                SG_λ_p, SG_λ_d, SG_T_p, SG_T_d, SG_M_p, SG_M_d)
     end
 end
 
@@ -165,6 +194,8 @@ function init_sym_grp!(
 
     S.SG_λ_p = MatsubaraSymmetryGroup(sym_λ_p, S.λ_S)
     S.SG_λ_d = MatsubaraSymmetryGroup(sym_λ_d, S.λ_D)
+    S.SG_T_p = MatsubaraSymmetryGroup(sym_M_p, S.T_S)
+    S.SG_T_d = MatsubaraSymmetryGroup(sym_M_d, S.T_D)
     S.SG_M_p = MatsubaraSymmetryGroup(sym_M_p, S.M_S)
     S.SG_M_d = MatsubaraSymmetryGroup(sym_M_d, S.M_D)
 
@@ -176,17 +207,23 @@ function init_sym_grp!(
     S      :: Solver,
     SG_λ_p :: MatsubaraSymmetryGroup,
     SG_λ_d :: MatsubaraSymmetryGroup,
+    SG_T_p :: MatsubaraSymmetryGroup,
+    SG_T_d :: MatsubaraSymmetryGroup,
     SG_M_p :: MatsubaraSymmetryGroup,
     SG_M_d :: MatsubaraSymmetryGroup
     )      :: Nothing 
 
     @assert length(S.λ_S) == sum(length.(SG_λ_p.classes)) "MatsubaraSymmetryGroup incompatible with MatsubaraFunction"
     @assert length(S.λ_D) == sum(length.(SG_λ_d.classes)) "MatsubaraSymmetryGroup incompatible with MatsubaraFunction"
+    @assert length(S.T_S) == sum(length.(SG_T_p.classes)) "MatsubaraSymmetryGroup incompatible with MatsubaraFunction"
+    @assert length(S.T_D) == sum(length.(SG_T_d.classes)) "MatsubaraSymmetryGroup incompatible with MatsubaraFunction"
     @assert length(S.M_S) == sum(length.(SG_M_p.classes)) "MatsubaraSymmetryGroup incompatible with MatsubaraFunction"
     @assert length(S.M_D) == sum(length.(SG_M_d.classes)) "MatsubaraSymmetryGroup incompatible with MatsubaraFunction"
 
     S.SG_λ_p = SG_λ_p
     S.SG_λ_d = SG_λ_d
+    S.SG_T_p = SG_T_p
+    S.SG_T_d = SG_T_d
     S.SG_M_p = SG_M_p
     S.SG_M_d = SG_M_d
 
@@ -282,16 +319,22 @@ function fixed_point!(
     # update G
     set!(S.G, calc_G(S.G0, S.Σ))
 
+    # calculate T
+    calc_T!(S.T_S, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, S.SG_T_p, ch_S)
+    calc_T!(S.T_T, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, S.SG_T_p, ch_T)
+    calc_T!(S.T_D, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, S.SG_T_d, ch_D)
+    calc_T!(S.T_M, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, S.SG_T_d, ch_M)
+
     # calculate λ
-    calc_λ!(S.λ_S_dummy, S.G, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, S.SG_λ_p, ch_S)
-    calc_λ!(S.λ_D_dummy, S.G, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, S.SG_λ_d, ch_D)
-    calc_λ!(S.λ_M_dummy, S.G, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, S.SG_λ_d, ch_M)
+    calc_λ!(S.λ_S_dummy, S.G, S.T_S, S.SG_λ_p, ch_S)
+    calc_λ!(S.λ_D_dummy, S.G, S.T_D, S.SG_λ_d, ch_D)
+    calc_λ!(S.λ_M_dummy, S.G, S.T_M, S.SG_λ_d, ch_M)
 
     # calculate M
-    calc_M!(S.M_S_dummy, S.G, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, S.SG_M_p, ch_S)
-    calc_M!(S.M_T_dummy, S.G, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, S.SG_M_p, ch_T)
-    calc_M!(S.M_D_dummy, S.G, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, S.SG_M_d, ch_D)
-    calc_M!(S.M_M_dummy, S.G, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, S.SG_M_d, ch_M)
+    calc_M!(S.M_S_dummy, S.G, S.T_S, S.M_S, S.SG_M_p, ch_S)
+    calc_M!(S.M_T_dummy, S.G, S.T_T, S.M_T, S.SG_M_p, ch_T)
+    calc_M!(S.M_D_dummy, S.G, S.T_D, S.M_D, S.SG_M_d, ch_D)
+    calc_M!(S.M_M_dummy, S.G, S.T_M, S.M_M, S.SG_M_d, ch_M)
 
     # update P
     set!(S.P_S, calc_P(S.λ_S, S.G, S.num_P, ch_S))
@@ -299,9 +342,18 @@ function fixed_point!(
     set!(S.P_M, calc_P(S.λ_M, S.G, S.num_P, ch_M))
     
     # calculate η
-    set!(S.η_S, calc_η(S.P_S, S.η_S, +2.0 * S.U))
-    set!(S.η_D, calc_η(S.P_D, S.η_D, +1.0 * S.U))
-    set!(S.η_M, calc_η(S.P_M, S.η_M, -1.0 * S.U))
+    # set!(S.η_S, calc_η(S.P_S, S.η_S, +2.0 * S.U))
+    # set!(S.η_D, calc_η(S.P_D, S.η_D, +1.0 * S.U))
+    # set!(S.η_M, calc_η(S.P_M, S.η_M, -1.0 * S.U))
+    η_S = calc_η(S.P_S, S.η_S, +2.0 * S.U)
+    η_D = calc_η(S.P_D, S.η_D, +1.0 * S.U)
+    η_M = calc_η(S.P_M, S.η_M, -1.0 * S.U)
+
+    set!(S.Σ, calc_Σ(S.G, S.η_D, S.λ_D, S.η_M, S.λ_M, S.U, S.num_Σ))
+
+    set!(S.η_S, η_S)
+    set!(S.η_D, η_D)
+    set!(S.η_M, η_M)
 
     # update λ   
     set!(S.λ_S, S.λ_S_dummy)
@@ -315,7 +367,7 @@ function fixed_point!(
     set!(S.M_M, S.M_M_dummy)
 
     # calculate Σ
-    set!(S.Σ, calc_Σ(S.G, S.η_D, S.λ_D, S.η_M, S.λ_M, S.U, S.num_Σ))
+    # set!(S.Σ, calc_Σ(S.G, S.η_D, S.λ_D, S.η_M, S.λ_M, S.U, S.num_Σ))
 
     # compute residue
     flatten!(S, F)

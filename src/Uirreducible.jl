@@ -56,6 +56,29 @@ function calc_T(
     return T 
 end
 
+function calc_T!(
+    T   :: MatsubaraFunction{3, 1, 4, Float64},
+    η_S :: MatsubaraFunction{1, 1, 2, Float64},
+    λ_S :: MatsubaraFunction{2, 1, 3, Float64},
+    η_D :: MatsubaraFunction{1, 1, 2, Float64},
+    λ_D :: MatsubaraFunction{2, 1, 3, Float64},
+    η_M :: MatsubaraFunction{1, 1, 2, Float64},
+    λ_M :: MatsubaraFunction{2, 1, 3, Float64},
+    M_S :: MatsubaraFunction{3, 1, 4, Float64},
+    M_T :: MatsubaraFunction{3, 1, 4, Float64},
+    M_D :: MatsubaraFunction{3, 1, 4, Float64},
+    M_M :: MatsubaraFunction{3, 1, 4, Float64},
+    U   :: Float64,
+    SG  :: MatsubaraSymmetryGroup,
+        :: Type{ch_S}
+    )   :: Nothing
+
+    f = MatsubaraInitFunction{3, 1, Float64}((wtpl, xtpl) -> calc_T(wtpl..., η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_S))
+    SG(T, f; mode = :threads)
+
+    return nothing 
+end
+
 # irreducible vertex in triplet channel
 function calc_T(
     w   :: MatsubaraFrequency, 
@@ -112,6 +135,29 @@ function calc_T(
     T += -0.5 * M_M[w2_idx, v_idx, v2_idx, 1]
 
     return T 
+end
+
+function calc_T!(
+    T   :: MatsubaraFunction{3, 1, 4, Float64},
+    η_S :: MatsubaraFunction{1, 1, 2, Float64},
+    λ_S :: MatsubaraFunction{2, 1, 3, Float64},
+    η_D :: MatsubaraFunction{1, 1, 2, Float64},
+    λ_D :: MatsubaraFunction{2, 1, 3, Float64},
+    η_M :: MatsubaraFunction{1, 1, 2, Float64},
+    λ_M :: MatsubaraFunction{2, 1, 3, Float64},
+    M_S :: MatsubaraFunction{3, 1, 4, Float64},
+    M_T :: MatsubaraFunction{3, 1, 4, Float64},
+    M_D :: MatsubaraFunction{3, 1, 4, Float64},
+    M_M :: MatsubaraFunction{3, 1, 4, Float64},
+    U   :: Float64,
+    SG  :: MatsubaraSymmetryGroup,
+        :: Type{ch_T}
+    )   :: Nothing
+
+    f = MatsubaraInitFunction{3, 1, Float64}((wtpl, xtpl) -> calc_T(wtpl..., η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_T))
+    SG(T, f; mode = :threads)
+
+    return nothing 
 end
 
 # irreducible vertex in density channel
@@ -171,6 +217,29 @@ function calc_T(
     return T 
 end
 
+function calc_T!(
+    T   :: MatsubaraFunction{3, 1, 4, Float64},
+    η_S :: MatsubaraFunction{1, 1, 2, Float64},
+    λ_S :: MatsubaraFunction{2, 1, 3, Float64},
+    η_D :: MatsubaraFunction{1, 1, 2, Float64},
+    λ_D :: MatsubaraFunction{2, 1, 3, Float64},
+    η_M :: MatsubaraFunction{1, 1, 2, Float64},
+    λ_M :: MatsubaraFunction{2, 1, 3, Float64},
+    M_S :: MatsubaraFunction{3, 1, 4, Float64},
+    M_T :: MatsubaraFunction{3, 1, 4, Float64},
+    M_D :: MatsubaraFunction{3, 1, 4, Float64},
+    M_M :: MatsubaraFunction{3, 1, 4, Float64},
+    U   :: Float64,
+    SG  :: MatsubaraSymmetryGroup,
+        :: Type{ch_D}
+    )   :: Nothing
+
+    f = MatsubaraInitFunction{3, 1, Float64}((wtpl, xtpl) -> calc_T(wtpl..., η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_D))
+    SG(T, f; mode = :threads)
+
+    return nothing 
+end
+
 # irreducible vertex in magnetic channel
 function calc_T(
     w   :: MatsubaraFrequency, 
@@ -226,4 +295,27 @@ function calc_T(
     T += +0.5 * M_M[w2_idx, v_idx, v2_idx, 1]
 
     return T 
+end
+
+function calc_T!(
+    T   :: MatsubaraFunction{3, 1, 4, Float64},
+    η_S :: MatsubaraFunction{1, 1, 2, Float64},
+    λ_S :: MatsubaraFunction{2, 1, 3, Float64},
+    η_D :: MatsubaraFunction{1, 1, 2, Float64},
+    λ_D :: MatsubaraFunction{2, 1, 3, Float64},
+    η_M :: MatsubaraFunction{1, 1, 2, Float64},
+    λ_M :: MatsubaraFunction{2, 1, 3, Float64},
+    M_S :: MatsubaraFunction{3, 1, 4, Float64},
+    M_T :: MatsubaraFunction{3, 1, 4, Float64},
+    M_D :: MatsubaraFunction{3, 1, 4, Float64},
+    M_M :: MatsubaraFunction{3, 1, 4, Float64},
+    U   :: Float64,
+    SG  :: MatsubaraSymmetryGroup,
+        :: Type{ch_M}
+    )   :: Nothing
+
+    f = MatsubaraInitFunction{3, 1, Float64}((wtpl, xtpl) -> calc_T(wtpl..., η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_M))
+    SG(T, f; mode = :threads)
+
+    return nothing 
 end
