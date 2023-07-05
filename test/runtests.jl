@@ -11,13 +11,13 @@ MPI.Init()
     U       = 5.75
     V       = 2.0
     D       = 10.0
-    num_G   = 128 
-    num_Σ   = 32  
-    num_P   = 64  
-    num_λ_w = 48  
-    num_λ_v = 32 
-    num_M_w = 16
-    num_M_v = 12
+    num_G   = 64 
+    num_Σ   = 12  
+    num_P   = 32  
+    num_λ_w = 16  
+    num_λ_v = 12 
+    num_M_w = 6
+    num_M_v = 4
     mem     = 8
     α       = 0.5
     tol     = 1e-4 
@@ -36,9 +36,6 @@ MPI.Init()
 
     # run the solver 
     solve!(S)
-    file = h5open("test.h5", "w")
-    save_solver!(file, S)
-    close(file)
 
     # compare to reference data
     ref_file = h5open("ref.h5", "r")
