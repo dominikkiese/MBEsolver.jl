@@ -1,5 +1,6 @@
 # symmetries of the multiboson vertex in the particle-particle channel
-function s1_M_p(
+# note: crossing symmetry in triplet channel yields an additional minus sign
+function s1_M_S(
     w :: NTuple{3, MatsubaraFrequency},
     x :: Tuple{Int64}
     ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
@@ -7,12 +8,28 @@ function s1_M_p(
     return (w[1], w[2], w[1] - w[3]), (x[1],), MatsubaraOperation()
 end 
 
-function s2_M_p(
+function s1_M_T(
+    w :: NTuple{3, MatsubaraFrequency},
+    x :: Tuple{Int64}
+    ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
+
+    return (w[1], w[2], w[1] - w[3]), (x[1],), MatsubaraOperation(true, false)
+end 
+
+function s2_M_S(
     w :: NTuple{3, MatsubaraFrequency},
     x :: Tuple{Int64}
     ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
 
     return (w[1], w[1] - w[2], w[3]), (x[1],), MatsubaraOperation()
+end 
+
+function s2_M_T(
+    w :: NTuple{3, MatsubaraFrequency},
+    x :: Tuple{Int64}
+    ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
+
+    return (w[1], w[1] - w[2], w[3]), (x[1],), MatsubaraOperation(true, false)
 end 
 
 function s3_M_p(

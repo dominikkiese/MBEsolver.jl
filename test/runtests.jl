@@ -29,9 +29,10 @@ MPI.Init()
     # calculate the symmetry groups 
     sym_λ_p = [MatsubaraSymmetry{2, 1}(s1_λ_p), MatsubaraSymmetry{2, 1}(s2_λ_p)]
     sym_λ_d = [MatsubaraSymmetry{2, 1}(s1_λ_d), MatsubaraSymmetry{2, 1}(s2_λ_d)]
-    sym_M_p = [MatsubaraSymmetry{3, 1}(s1_M_p), MatsubaraSymmetry{3, 1}(s2_M_p), MatsubaraSymmetry{3, 1}(s3_M_p), MatsubaraSymmetry{3, 1}(s4_M_p)]
+    sym_M_S = [MatsubaraSymmetry{3, 1}(s1_M_S), MatsubaraSymmetry{3, 1}(s2_M_S), MatsubaraSymmetry{3, 1}(s3_M_p), MatsubaraSymmetry{3, 1}(s4_M_p)]
+    sym_M_T = [MatsubaraSymmetry{3, 1}(s1_M_T), MatsubaraSymmetry{3, 1}(s2_M_T), MatsubaraSymmetry{3, 1}(s3_M_p), MatsubaraSymmetry{3, 1}(s4_M_p)]
     sym_M_d = [MatsubaraSymmetry{3, 1}(s1_M_d), MatsubaraSymmetry{3, 1}(s2_M_d), MatsubaraSymmetry{3, 1}(s3_M_d)]
-    init_sym_grp!(S, sym_λ_p, sym_λ_d, sym_M_p, sym_M_d)
+    init_sym_grp!(S, sym_λ_p, sym_λ_d, sym_M_S, sym_M_T, sym_M_d)
 
     # run the solver 
     solve!(S)
