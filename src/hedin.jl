@@ -4,7 +4,7 @@ function s1_λ_p(
     x :: Tuple{Int64}
     ) :: Tuple{NTuple{2, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
 
-    return (-w[1], -w[2]), (x[1],), MatsubaraOperation(false, true)
+    return (-w[1], -w[2]), x, MatsubaraOperation(false, true)
 end 
 
 function s2_λ_p(
@@ -12,7 +12,7 @@ function s2_λ_p(
     x :: Tuple{Int64}
     ) :: Tuple{NTuple{2, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
 
-    return (w[1], w[1] - w[2]), (x[1],), MatsubaraOperation()
+    return (w[1], w[1] - w[2]), x, MatsubaraOperation()
 end 
 
 
@@ -23,7 +23,7 @@ function s1_λ_d(
     x :: Tuple{Int64}
     ) :: Tuple{NTuple{2, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
 
-    return (-w[1], -w[2]), (x[1],), MatsubaraOperation(false, true)
+    return (-w[1], -w[2]), x, MatsubaraOperation(false, true)
 end 
 
 function s2_λ_d(
@@ -31,7 +31,7 @@ function s2_λ_d(
     x :: Tuple{Int64}
     ) :: Tuple{NTuple{2, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
 
-    return (-w[1], w[1] + w[2]), (x[1],), MatsubaraOperation()
+    return (-w[1], w[1] + w[2]), x, MatsubaraOperation()
 end 
 
 

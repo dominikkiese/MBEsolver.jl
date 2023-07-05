@@ -69,12 +69,12 @@ function calc_T!(
     M_D :: MatsubaraFunction{3, 1, 4, Float64},
     M_M :: MatsubaraFunction{3, 1, 4, Float64},
     U   :: Float64,
-    SG  :: MatsubaraSymmetryGroup,
         :: Type{ch_S}
     )   :: Nothing
 
-    f = MatsubaraInitFunction{3, 1, Float64}((wtpl, xtpl) -> calc_T(wtpl..., η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_S))
-    SG(T, f; mode = :hybrid)
+    @Threads.threads for i in eachindex(T.data)
+        T[i] = calc_T(first(to_Matsubara(T, i))..., η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_S)
+    end
 
     return nothing 
 end
@@ -150,12 +150,12 @@ function calc_T!(
     M_D :: MatsubaraFunction{3, 1, 4, Float64},
     M_M :: MatsubaraFunction{3, 1, 4, Float64},
     U   :: Float64,
-    SG  :: MatsubaraSymmetryGroup,
         :: Type{ch_T}
     )   :: Nothing
 
-    f = MatsubaraInitFunction{3, 1, Float64}((wtpl, xtpl) -> calc_T(wtpl..., η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_T))
-    SG(T, f; mode = :hybrid)
+    @Threads.threads for i in eachindex(T.data)
+        T[i] = calc_T(first(to_Matsubara(T, i))..., η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_T)
+    end
 
     return nothing 
 end
@@ -230,12 +230,12 @@ function calc_T!(
     M_D :: MatsubaraFunction{3, 1, 4, Float64},
     M_M :: MatsubaraFunction{3, 1, 4, Float64},
     U   :: Float64,
-    SG  :: MatsubaraSymmetryGroup,
         :: Type{ch_D}
     )   :: Nothing
 
-    f = MatsubaraInitFunction{3, 1, Float64}((wtpl, xtpl) -> calc_T(wtpl..., η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_D))
-    SG(T, f; mode = :hybrid)
+    @Threads.threads for i in eachindex(T.data)
+        T[i] = calc_T(first(to_Matsubara(T, i))..., η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_D)
+    end
 
     return nothing 
 end
@@ -310,12 +310,12 @@ function calc_T!(
     M_D :: MatsubaraFunction{3, 1, 4, Float64},
     M_M :: MatsubaraFunction{3, 1, 4, Float64},
     U   :: Float64,
-    SG  :: MatsubaraSymmetryGroup,
         :: Type{ch_M}
     )   :: Nothing
 
-    f = MatsubaraInitFunction{3, 1, Float64}((wtpl, xtpl) -> calc_T(wtpl..., η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_M))
-    SG(T, f; mode = :hybrid)
+    @Threads.threads for i in eachindex(T.data)
+        T[i] = calc_T(first(to_Matsubara(T, i))..., η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_M)
+    end
 
     return nothing 
 end

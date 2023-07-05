@@ -53,14 +53,11 @@ mutable struct Solver
     # vertex symmetry groups
     SG_λ_p :: MatsubaraSymmetryGroup 
     SG_λ_d :: MatsubaraSymmetryGroup
-    SG_T_S :: MatsubaraSymmetryGroup 
-    SG_T_T :: MatsubaraSymmetryGroup 
-    SG_T_d :: MatsubaraSymmetryGroup
     SG_M_S :: MatsubaraSymmetryGroup 
     SG_M_T :: MatsubaraSymmetryGroup 
     SG_M_d :: MatsubaraSymmetryGroup
 
-    # convenience constructor for the Solver(default constructor implicitly deleted)
+    # convenience constructor for the Solver (default constructor implicitly deleted)
     function Solver(
         T       :: Float64,
         U       :: Float64,
@@ -75,7 +72,7 @@ mutable struct Solver
         num_M_v :: Int64,
         ;
         mem     :: Int64   = 8,
-        α       :: Float64 = 0.5,
+        α       :: Float64 = 0.85,
         tol     :: Float64 = 1e-4,   
         maxiter :: Int64   = 100
         )       :: Solver
@@ -169,9 +166,6 @@ mutable struct Solver
         # dummy initialization of symmetry groups 
         SG_λ_p = MatsubaraSymmetryGroup(λ_S)
         SG_λ_d = deepcopy(SG_λ_p)
-        SG_T_S = MatsubaraSymmetryGroup(T_S)
-        SG_T_T = deepcopy(SG_T_S)
-        SG_T_d = deepcopy(SG_T_S)
         SG_M_S = MatsubaraSymmetryGroup(M_S)
         SG_M_T = deepcopy(SG_M_S)
         SG_M_d = deepcopy(SG_M_S)
@@ -184,7 +178,7 @@ mutable struct Solver
                 λ_S, λ_D, λ_M, λ_S_dummy, λ_D_dummy, λ_M_dummy, 
                 T_S, T_T, T_D, T_M,
                 M_S, M_T, M_D, M_M, M_S_dummy, M_T_dummy, M_D_dummy, M_M_dummy,
-                SG_λ_p, SG_λ_d, SG_T_S, SG_T_T, SG_T_d, SG_M_S, SG_M_T, SG_M_d)
+                SG_λ_p, SG_λ_d, SG_M_S, SG_M_T, SG_M_d)
     end
 end
 
@@ -200,9 +194,6 @@ function init_sym_grp!(
 
     S.SG_λ_p = MatsubaraSymmetryGroup(sym_λ_p, S.λ_S)
     S.SG_λ_d = MatsubaraSymmetryGroup(sym_λ_d, S.λ_D)
-    S.SG_T_S = MatsubaraSymmetryGroup(sym_M_S, S.T_S)
-    S.SG_T_T = MatsubaraSymmetryGroup(sym_M_T, S.T_T)
-    S.SG_T_d = MatsubaraSymmetryGroup(sym_M_d, S.T_D)
     S.SG_M_S = MatsubaraSymmetryGroup(sym_M_S, S.M_S)
     S.SG_M_T = MatsubaraSymmetryGroup(sym_M_T, S.M_T)
     S.SG_M_d = MatsubaraSymmetryGroup(sym_M_d, S.M_D)
@@ -215,9 +206,6 @@ function init_sym_grp!(
     S      :: Solver,
     SG_λ_p :: MatsubaraSymmetryGroup,
     SG_λ_d :: MatsubaraSymmetryGroup,
-    SG_T_S :: MatsubaraSymmetryGroup,
-    SG_T_T :: MatsubaraSymmetryGroup,
-    SG_T_d :: MatsubaraSymmetryGroup,
     SG_M_S :: MatsubaraSymmetryGroup,
     SG_M_T :: MatsubaraSymmetryGroup,
     SG_M_d :: MatsubaraSymmetryGroup
@@ -225,18 +213,12 @@ function init_sym_grp!(
 
     @assert length(S.λ_S) == sum(length.(SG_λ_p.classes)) "MatsubaraSymmetryGroup incompatible with MatsubaraFunction"
     @assert length(S.λ_D) == sum(length.(SG_λ_d.classes)) "MatsubaraSymmetryGroup incompatible with MatsubaraFunction"
-    @assert length(S.T_S) == sum(length.(SG_T_S.classes)) "MatsubaraSymmetryGroup incompatible with MatsubaraFunction"
-    @assert length(S.T_T) == sum(length.(SG_T_T.classes)) "MatsubaraSymmetryGroup incompatible with MatsubaraFunction"
-    @assert length(S.T_D) == sum(length.(SG_T_d.classes)) "MatsubaraSymmetryGroup incompatible with MatsubaraFunction"
     @assert length(S.M_S) == sum(length.(SG_M_S.classes)) "MatsubaraSymmetryGroup incompatible with MatsubaraFunction"
     @assert length(S.M_T) == sum(length.(SG_M_T.classes)) "MatsubaraSymmetryGroup incompatible with MatsubaraFunction"
     @assert length(S.M_D) == sum(length.(SG_M_d.classes)) "MatsubaraSymmetryGroup incompatible with MatsubaraFunction"
 
     S.SG_λ_p = SG_λ_p
     S.SG_λ_d = SG_λ_d
-    S.SG_T_S = SG_T_S
-    S.SG_T_T = SG_T_T
-    S.SG_T_d = SG_T_d
     S.SG_M_S = SG_M_S
     S.SG_M_T = SG_M_T
     S.SG_M_d = SG_M_d
@@ -334,10 +316,10 @@ function fixed_point!(
     set!(S.G, calc_G(S.G0, S.Σ))
 
     # calculate T
-    calc_T!(S.T_S, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, S.SG_T_S, ch_S)
-    calc_T!(S.T_T, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, S.SG_T_T, ch_T)
-    calc_T!(S.T_D, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, S.SG_T_d, ch_D)
-    calc_T!(S.T_M, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, S.SG_T_d, ch_M)
+    calc_T!(S.T_S, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, ch_S)
+    calc_T!(S.T_T, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, ch_T)
+    calc_T!(S.T_D, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, ch_D)
+    calc_T!(S.T_M, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, ch_M)
 
     # calculate λ
     calc_λ!(S.λ_S_dummy, S.G, S.T_S, S.SG_λ_p, ch_S)
@@ -454,9 +436,6 @@ function save_solver!(
 
     save_matsubara_symmetry_group!(file, "SG_λ_p", S.SG_λ_p)
     save_matsubara_symmetry_group!(file, "SG_λ_d", S.SG_λ_d)
-    save_matsubara_symmetry_group!(file, "SG_T_S", S.SG_T_S)
-    save_matsubara_symmetry_group!(file, "SG_T_T", S.SG_T_T)
-    save_matsubara_symmetry_group!(file, "SG_T_d", S.SG_T_d)
     save_matsubara_symmetry_group!(file, "SG_M_S", S.SG_M_S)
     save_matsubara_symmetry_group!(file, "SG_M_T", S.SG_M_T)
     save_matsubara_symmetry_group!(file, "SG_M_d", S.SG_M_d)

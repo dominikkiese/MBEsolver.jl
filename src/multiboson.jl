@@ -5,7 +5,7 @@ function s1_M_S(
     x :: Tuple{Int64}
     ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
 
-    return (w[1], w[2], w[1] - w[3]), (x[1],), MatsubaraOperation()
+    return (w[1], w[2], w[1] - w[3]), x, MatsubaraOperation()
 end 
 
 function s1_M_T(
@@ -13,7 +13,7 @@ function s1_M_T(
     x :: Tuple{Int64}
     ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
 
-    return (w[1], w[2], w[1] - w[3]), (x[1],), MatsubaraOperation(true, false)
+    return (w[1], w[2], w[1] - w[3]), x, MatsubaraOperation(true, false)
 end 
 
 function s2_M_S(
@@ -21,7 +21,7 @@ function s2_M_S(
     x :: Tuple{Int64}
     ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
 
-    return (w[1], w[1] - w[2], w[3]), (x[1],), MatsubaraOperation()
+    return (w[1], w[1] - w[2], w[3]), x, MatsubaraOperation()
 end 
 
 function s2_M_T(
@@ -29,7 +29,7 @@ function s2_M_T(
     x :: Tuple{Int64}
     ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
 
-    return (w[1], w[1] - w[2], w[3]), (x[1],), MatsubaraOperation(true, false)
+    return (w[1], w[1] - w[2], w[3]), x, MatsubaraOperation(true, false)
 end 
 
 function s3_M_p(
@@ -37,7 +37,7 @@ function s3_M_p(
     x :: Tuple{Int64}
     ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
 
-    return (-w[1], -w[3], -w[2]), (x[1],), MatsubaraOperation(false, true)
+    return (-w[1], -w[3], -w[2]), x, MatsubaraOperation(false, true)
 end 
 
 function s4_M_p(
@@ -45,7 +45,7 @@ function s4_M_p(
     x :: Tuple{Int64}
     ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
 
-    return (w[1], w[3], w[2]), (x[1],), MatsubaraOperation()
+    return (w[1], w[3], w[2]), x, MatsubaraOperation()
 end 
 
 

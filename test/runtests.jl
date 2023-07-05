@@ -84,7 +84,7 @@ end
 
     # run the solver 
     solve!(S)
-    
+
     # compare to reference data
     ref_file = h5open("refsym.h5", "r")
 
