@@ -36,7 +36,7 @@ MPI.Init()
 
     # run the solver 
     solve!(S)
-
+    
     # compare to reference data
     ref_file = h5open("ref.h5", "r")
 

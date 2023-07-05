@@ -94,11 +94,11 @@ function calc_M!(
         val       = 0.0
         ex        = (true, 0.0)
         T_L_slice = view(T, w, :, vp) 
-        T_R_slice = view(T, w, :, w - v)
+        T_R_slice = view(T, w, :, v)
 
         for i in eachindex(grids(T, 2))
             vpp  = grids(T, 2)[i]
-            val += (T_L_slice[i] - M_S(w, vpp, vp)) * G(vpp; extrp = ex) * G(w - vpp; extrp = ex) * T_R_slice[i]
+            val += (T_L_slice[i] - M_S(w, vpp, vp; extrp = ex)) * G(vpp; extrp = ex) * G(w - vpp; extrp = ex) * T_R_slice[i]
         end 
 
         return 0.5 * temperature(M) * val
@@ -120,7 +120,28 @@ function calc_M!(
         :: Type{ch_T}
     )   :: Nothing
 
-    return calc_M!(M, G, T, M_T, SG, ch_S)
+    # model the diagram 
+    function f(wtpl, xtpl)
+
+        w, v, vp  = wtpl 
+        val       = 0.0
+        ex        = (true, 0.0)
+        T_L_slice = view(T, w, :, vp) 
+        T_R_slice = view(T, w, :, v)
+
+        # additional minus sign from use of crossing symmetry
+        for i in eachindex(grids(T, 2))
+            vpp  = grids(T, 2)[i]
+            val -= (T_L_slice[i] - M_T(w, vpp, vp; extrp = ex)) * G(vpp; extrp = ex) * G(w - vpp; extrp = ex) * T_R_slice[i]
+        end 
+
+        return 0.5 * temperature(M) * val
+    end 
+
+    # compute multiboson vertex 
+    SG(M, MatsubaraInitFunction{3, 1, Float64}(f); mode = :hybrid)
+
+    return nothing 
 end   
 
 # multiboson vertex in density channel
@@ -144,7 +165,7 @@ function calc_M!(
 
         for i in eachindex(grids(T, 3))
             vpp  = grids(T, 3)[i]
-            val -= (T_L_slice[i] - M_D(w, v, vpp)) * G(w + vpp; extrp = ex) * G(vpp; extrp = ex) * T_R_slice[i]
+            val -= (T_L_slice[i] - M_D(w, v, vpp; extrp = ex)) * G(w + vpp; extrp = ex) * G(vpp; extrp = ex) * T_R_slice[i]
         end 
 
         return temperature(M) * val

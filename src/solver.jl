@@ -83,7 +83,8 @@ mutable struct Solver
         # sanity checks 
         @assert num_Σ <= num_λ_v "num_Σ <= num_λ_v required"
         @assert num_λ_w > num_λ_v "num_λ_w > num_λ_v required"
-        @assert num_λ_v > num_M_w + num_M_v "num_λ_v > num_M_w + num_M_v required"
+        @assert num_λ_w > num_M_w "num_λ_w > num_M_w required"
+        @assert num_λ_v > num_M_v "num_λ_v > num_M_v required"
         @assert num_M_w > num_M_v "num_M_w > num_M_v required"
 
         # initialization of G0 and G 
