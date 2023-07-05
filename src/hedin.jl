@@ -62,7 +62,7 @@ function calc_λ!(
     end
 
     # compute Hedin vertex
-    SG(λ, MatsubaraInitFunction{2, 1, Float64}(f); mode = :hybrid)
+    SG(λ, MatsubaraInitFunction{2, 1, Float64}(f); mode = :threads)
 
     return nothing 
 end
@@ -93,7 +93,7 @@ function calc_λ!(
     end
 
     # compute Hedin vertex
-    SG(λ, MatsubaraInitFunction{2, 1, Float64}(f); mode = :hybrid)
+    SG(λ, MatsubaraInitFunction{2, 1, Float64}(f); mode = :threads)
 
     return nothing 
 end

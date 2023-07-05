@@ -74,7 +74,7 @@ function calc_T!(
     )   :: Nothing
 
     f = MatsubaraInitFunction{3, 1, Float64}((wtpl, xtpl) -> calc_T(wtpl..., η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_S))
-    SG(T, f; mode = :threads)
+    SG(T, f; mode = :hybrid)
 
     return nothing 
 end
@@ -155,7 +155,7 @@ function calc_T!(
     )   :: Nothing
 
     f = MatsubaraInitFunction{3, 1, Float64}((wtpl, xtpl) -> calc_T(wtpl..., η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_T))
-    SG(T, f; mode = :threads)
+    SG(T, f; mode = :hybrid)
 
     return nothing 
 end
@@ -235,7 +235,7 @@ function calc_T!(
     )   :: Nothing
 
     f = MatsubaraInitFunction{3, 1, Float64}((wtpl, xtpl) -> calc_T(wtpl..., η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_D))
-    SG(T, f; mode = :threads)
+    SG(T, f; mode = :hybrid)
 
     return nothing 
 end
@@ -315,7 +315,7 @@ function calc_T!(
     )   :: Nothing
 
     f = MatsubaraInitFunction{3, 1, Float64}((wtpl, xtpl) -> calc_T(wtpl..., η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_M))
-    SG(T, f; mode = :threads)
+    SG(T, f; mode = :hybrid)
 
     return nothing 
 end
