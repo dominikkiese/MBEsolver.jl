@@ -30,7 +30,7 @@ MPI.Init()
     solve!(S)
     
     # compare to reference data
-    ref_file = h5open("refnosym.h5", "r")
+    ref_file = h5open(joinpath(dirname(@__FILE__), "refnosym.h5"), "r")
 
     @test S.G0  == load_matsubara_function(ref_file, "G0")
     @test S.G   == load_matsubara_function(ref_file, "G")
@@ -86,7 +86,7 @@ end
     solve!(S)
 
     # compare to reference data
-    ref_file = h5open("refsym.h5", "r")
+    ref_file = h5open(joinpath(dirname(@__FILE__), "refsym.h5"), "r")
 
     @test S.G0  == load_matsubara_function(ref_file, "G0")
     @test S.G   == load_matsubara_function(ref_file, "G")

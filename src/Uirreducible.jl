@@ -56,29 +56,6 @@ function calc_T(
     return T 
 end
 
-function calc_T!(
-    T   :: MatsubaraFunction{3, 1, 4, Float64},
-    η_S :: MatsubaraFunction{1, 1, 2, Float64},
-    λ_S :: MatsubaraFunction{2, 1, 3, Float64},
-    η_D :: MatsubaraFunction{1, 1, 2, Float64},
-    λ_D :: MatsubaraFunction{2, 1, 3, Float64},
-    η_M :: MatsubaraFunction{1, 1, 2, Float64},
-    λ_M :: MatsubaraFunction{2, 1, 3, Float64},
-    M_S :: MatsubaraFunction{3, 1, 4, Float64},
-    M_T :: MatsubaraFunction{3, 1, 4, Float64},
-    M_D :: MatsubaraFunction{3, 1, 4, Float64},
-    M_M :: MatsubaraFunction{3, 1, 4, Float64},
-    U   :: Float64,
-        :: Type{ch_S}
-    )   :: Nothing
-
-    @Threads.threads for i in eachindex(T.data)
-        T[i] = calc_T(first(to_Matsubara(T, i))..., η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_S)
-    end
-
-    return nothing 
-end
-
 # irreducible vertex in triplet channel
 function calc_T(
     w   :: MatsubaraFrequency, 
@@ -137,8 +114,10 @@ function calc_T(
     return T 
 end
 
-function calc_T!(
-    T   :: MatsubaraFunction{3, 1, 4, Float64},
+# inplace calculation of irreducible vertices in pp channel
+function calc_T_pp!(
+    T_S :: MatsubaraFunction{3, 1, 4, Float64},
+    T_T :: MatsubaraFunction{3, 1, 4, Float64},
     η_S :: MatsubaraFunction{1, 1, 2, Float64},
     λ_S :: MatsubaraFunction{2, 1, 3, Float64},
     η_D :: MatsubaraFunction{1, 1, 2, Float64},
@@ -149,12 +128,14 @@ function calc_T!(
     M_T :: MatsubaraFunction{3, 1, 4, Float64},
     M_D :: MatsubaraFunction{3, 1, 4, Float64},
     M_M :: MatsubaraFunction{3, 1, 4, Float64},
-    U   :: Float64,
-        :: Type{ch_T}
+    U   :: Float64
     )   :: Nothing
 
-    @Threads.threads for i in eachindex(T.data)
-        T[i] = calc_T(first(to_Matsubara(T, i))..., η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_T)
+    @Threads.threads for Ω in grids(T_S, 1)
+        for ν in grids(T_S, 2), νp in grids(T_S, 3)
+            T_S[Ω, ν, νp] = calc_T(Ω, ν, νp, η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_S)
+            T_T[Ω, ν, νp] = calc_T(Ω, ν, νp, η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_T)
+        end
     end
 
     return nothing 
@@ -217,29 +198,6 @@ function calc_T(
     return T 
 end
 
-function calc_T!(
-    T   :: MatsubaraFunction{3, 1, 4, Float64},
-    η_S :: MatsubaraFunction{1, 1, 2, Float64},
-    λ_S :: MatsubaraFunction{2, 1, 3, Float64},
-    η_D :: MatsubaraFunction{1, 1, 2, Float64},
-    λ_D :: MatsubaraFunction{2, 1, 3, Float64},
-    η_M :: MatsubaraFunction{1, 1, 2, Float64},
-    λ_M :: MatsubaraFunction{2, 1, 3, Float64},
-    M_S :: MatsubaraFunction{3, 1, 4, Float64},
-    M_T :: MatsubaraFunction{3, 1, 4, Float64},
-    M_D :: MatsubaraFunction{3, 1, 4, Float64},
-    M_M :: MatsubaraFunction{3, 1, 4, Float64},
-    U   :: Float64,
-        :: Type{ch_D}
-    )   :: Nothing
-
-    @Threads.threads for i in eachindex(T.data)
-        T[i] = calc_T(first(to_Matsubara(T, i))..., η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_D)
-    end
-
-    return nothing 
-end
-
 # irreducible vertex in magnetic channel
 function calc_T(
     w   :: MatsubaraFrequency, 
@@ -297,8 +255,10 @@ function calc_T(
     return T 
 end
 
-function calc_T!(
-    T   :: MatsubaraFunction{3, 1, 4, Float64},
+# inplace calculation of irreducible vertices in pp channel
+function calc_T_ph!(
+    T_D :: MatsubaraFunction{3, 1, 4, Float64},
+    T_M :: MatsubaraFunction{3, 1, 4, Float64},
     η_S :: MatsubaraFunction{1, 1, 2, Float64},
     λ_S :: MatsubaraFunction{2, 1, 3, Float64},
     η_D :: MatsubaraFunction{1, 1, 2, Float64},
@@ -309,12 +269,14 @@ function calc_T!(
     M_T :: MatsubaraFunction{3, 1, 4, Float64},
     M_D :: MatsubaraFunction{3, 1, 4, Float64},
     M_M :: MatsubaraFunction{3, 1, 4, Float64},
-    U   :: Float64,
-        :: Type{ch_M}
+    U   :: Float64
     )   :: Nothing
 
-    @Threads.threads for i in eachindex(T.data)
-        T[i] = calc_T(first(to_Matsubara(T, i))..., η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_M)
+    @Threads.threads for Ω in grids(T_D, 1)
+        for ν in grids(T_D, 2), νp in grids(T_D, 3)
+            T_D[Ω, ν, νp] = calc_T(Ω, ν, νp, η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_D)
+            T_M[Ω, ν, νp] = calc_T(Ω, ν, νp, η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_M)
+        end
     end
 
     return nothing 

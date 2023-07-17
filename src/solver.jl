@@ -316,10 +316,8 @@ function fixed_point!(
     set!(S.G, calc_G(S.G0, S.Σ))
 
     # calculate T
-    calc_T!(S.T_S, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, ch_S)
-    calc_T!(S.T_T, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, ch_T)
-    calc_T!(S.T_D, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, ch_D)
-    calc_T!(S.T_M, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U, ch_M)
+    calc_T_pp!(S.T_S, S.T_T, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U)
+    calc_T_ph!(S.T_D, S.T_M, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U)
 
     # calculate λ
     calc_λ!(S.λ_S_dummy, S.G, S.T_S, S.SG_λ_p, ch_S)
