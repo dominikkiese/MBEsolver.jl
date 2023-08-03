@@ -103,6 +103,8 @@ mutable struct Solver
         Π_pp   = MatsubaraFunction((grid_P, grid_Π), 1, Float64)
         Π_ph   = MatsubaraFunction((grid_P, grid_Π), 1, Float64)
 
+        calc_Π!(Π_pp, Π_ph, G0)
+
         # initialization of P, η
         P_S    = MatsubaraFunction(grid_P, 1, Float64)
         P_D    = MatsubaraFunction(grid_P, 1, Float64)
@@ -166,8 +168,8 @@ mutable struct Solver
         grid_Σ = MatsubaraGrid(T, num_Σ, Fermion)
         Σ      = MatsubaraFunction(grid_Σ, 1, Float64)
 
-        P_D0 = calc_P(λ_D, G0, num_P, ch_D); η_D0 = calc_η(P_D0, η_D, +U)
-        P_M0 = calc_P(λ_M, G0, num_P, ch_M); η_M0 = calc_η(P_M0, η_M, -U)
+        P_D0 = calc_P(λ_D, Π_ph, num_P, ch_D); η_D0 = calc_η(P_D0, η_D, +U)
+        P_M0 = calc_P(λ_M, Π_ph, num_P, ch_M); η_M0 = calc_η(P_M0, η_M, -U)
         set!(Σ, calc_Σ(G0, η_D0, λ_D, η_M0, λ_M, U, num_Σ))
 
         # dummy initialization of symmetry groups 
@@ -341,9 +343,9 @@ function fixed_point!(
     calc_M!(S.M_M_dummy, S.Π_ph, S.T_M, S.M_M, S.SG_M_d, ch_M)
 
     # update P
-    set!(S.P_S, calc_P(S.λ_S, S.G, S.num_P, ch_S))
-    set!(S.P_D, calc_P(S.λ_D, S.G, S.num_P, ch_D))
-    set!(S.P_M, calc_P(S.λ_M, S.G, S.num_P, ch_M))
+    set!(S.P_S, calc_P(S.λ_S, S.Π_pp, S.num_P, ch_S))
+    set!(S.P_D, calc_P(S.λ_D, S.Π_ph, S.num_P, ch_D))
+    set!(S.P_M, calc_P(S.λ_M, S.Π_ph, S.num_P, ch_M))
     
     # calculate η
     set!(S.η_S, calc_η(S.P_S, S.η_S, +2.0 * S.U))
