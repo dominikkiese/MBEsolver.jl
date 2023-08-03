@@ -131,8 +131,8 @@ function calc_T_pp!(
     U   :: Float64
     )   :: Nothing
 
-    Threads.@threads for w in grids(T_S, 1)
-        for v in grids(T_S, 2), vp in grids(T_S, 3)
+    Threads.@threads for vp in grids(T_S, 3)
+        for v in grids(T_S, 2), w in grids(T_S, 1)
             T_S[w, v, vp] = calc_T(w, v, vp, η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_S)
             T_T[w, v, vp] = calc_T(w, v, vp, η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_T)
         end
@@ -272,8 +272,8 @@ function calc_T_ph!(
     U   :: Float64
     )   :: Nothing
 
-    Threads.@threads for w in grids(T_D, 1)
-        for v in grids(T_D, 2), vp in grids(T_D, 3)
+    Threads.@threads for vp in grids(T_D, 3)
+        for v in grids(T_D, 2), w in grids(T_D, 1)
             T_D[w, v, vp] = calc_T(w, v, vp, η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_D)
             T_M[w, v, vp] = calc_T(w, v, vp, η_S, λ_S, η_D, λ_D, η_M, λ_M, M_S, M_T, M_D, M_M, U, ch_M)
         end
