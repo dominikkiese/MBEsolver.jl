@@ -29,3 +29,20 @@ function calc_η(
 
     return ηp 
 end
+
+# bubble functions Π
+function calc_Π!(
+    Π_pp :: MatsubaraFunction{2, 1, 3, Float64},
+    Π_ph :: MatsubaraFunction{2, 1, 3, Float64},
+    G    :: MatsubaraFunction{1, 1, 2, Float64}
+    )    :: Nothing 
+
+    ex = (true, 0.0)
+    
+    for w in grids(Π_pp, 1), v in grids(Π_pp, 2)
+        Π_pp[w, v] = G(v; extrp = ex) * G(w - v; extrp = ex)
+        Π_ph[w, v] = G(w + v; extrp = ex) * G(v; extrp = ex)
+    end
+
+    return nothing 
+end

@@ -5,6 +5,7 @@ module MBEsolver
     @recompile_invalidations begin
         using MPI
         using MatsubaraFunctions
+        using LoopVectorization
         using NLsolve
         using HDF5
     end

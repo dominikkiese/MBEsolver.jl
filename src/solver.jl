@@ -11,10 +11,12 @@ mutable struct Solver
     tol     :: Float64
     maxiter :: Int64
 
-    # propagators
-    G0 :: MatsubaraFunction{1, 1, 2, Float64}
-    G  :: MatsubaraFunction{1, 1, 2, Float64}
-    Σ  :: MatsubaraFunction{1, 1, 2, Float64}
+    # propagators and bubbles
+    G0   :: MatsubaraFunction{1, 1, 2, Float64}
+    G    :: MatsubaraFunction{1, 1, 2, Float64}
+    Σ    :: MatsubaraFunction{1, 1, 2, Float64}
+    Π_pp :: MatsubaraFunction{2, 1, 3, Float64}
+    Π_ph :: MatsubaraFunction{2, 1, 3, Float64}
 
     # polarizations
     P_S :: MatsubaraFunction{1, 1, 2, Float64}
@@ -79,6 +81,7 @@ mutable struct Solver
 
         # sanity checks 
         @assert num_Σ <= num_λ_v "num_Σ <= num_λ_v required"
+        @assert num_P > num_λ_w "num_P > num_λ_w required"
         @assert num_λ_w > num_λ_v "num_λ_w > num_λ_v required"
         @assert num_λ_w > num_M_w "num_λ_w > num_M_w required"
         @assert num_λ_v > num_M_v "num_λ_v > num_M_v required"
@@ -93,10 +96,14 @@ mutable struct Solver
             G0[v] = 1.0 / (value(v) + V * V / D * atan(D / value(v)))
         end 
 
-        set!(G, G0)
+        # initialization of bubbles
+        num_Π  = max(num_λ_w + num_λ_v + num_P, 4 * num_P)
+        grid_P = MatsubaraGrid(T, num_P, Boson)
+        grid_Π = MatsubaraGrid(T, num_Π, Fermion)
+        Π_pp   = MatsubaraFunction((grid_P, grid_Π), 1, Float64)
+        Π_ph   = MatsubaraFunction((grid_P, grid_Π), 1, Float64)
 
         # initialization of P, η
-        grid_P = MatsubaraGrid(T, num_P, Boson)
         P_S    = MatsubaraFunction(grid_P, 1, Float64)
         P_D    = MatsubaraFunction(grid_P, 1, Float64)
         P_M    = MatsubaraFunction(grid_P, 1, Float64)
@@ -172,7 +179,7 @@ mutable struct Solver
 
         # build the solver 
         return new(T, U, V, D, num_Σ, num_P, mem, α, tol, maxiter, 
-                G0, G, Σ, 
+                G0, G, Σ, Π_pp, Π_ph,
                 P_S, P_D, P_M, 
                 η_S, η_D, η_M, 
                 λ_S, λ_D, λ_M, λ_S_dummy, λ_D_dummy, λ_M_dummy, 
@@ -315,6 +322,9 @@ function fixed_point!(
     # update G
     set!(S.G, calc_G(S.G0, S.Σ))
 
+    # update Π
+    calc_Π!(S.Π_pp, S.Π_ph, S.G)
+
     # calculate T
     calc_T_pp!(S.T_S, S.T_T, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U)
     calc_T_ph!(S.T_D, S.T_M, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U)
@@ -325,10 +335,10 @@ function fixed_point!(
     calc_λ!(S.λ_M_dummy, S.G, S.T_M, S.SG_λ_d, ch_M)
 
     # calculate M
-    calc_M!(S.M_S_dummy, S.G, S.T_S, S.M_S, S.SG_M_S, ch_S)
-    calc_M!(S.M_T_dummy, S.G, S.T_T, S.M_T, S.SG_M_T, ch_T)
-    calc_M!(S.M_D_dummy, S.G, S.T_D, S.M_D, S.SG_M_d, ch_D)
-    calc_M!(S.M_M_dummy, S.G, S.T_M, S.M_M, S.SG_M_d, ch_M)
+    calc_M!(S.M_S_dummy, S.Π_pp, S.T_S, S.M_S, S.SG_M_S, ch_S)
+    calc_M!(S.M_T_dummy, S.Π_pp, S.T_T, S.M_T, S.SG_M_T, ch_T)
+    calc_M!(S.M_D_dummy, S.Π_ph, S.T_D, S.M_D, S.SG_M_d, ch_D)
+    calc_M!(S.M_M_dummy, S.Π_ph, S.T_M, S.M_M, S.SG_M_d, ch_M)
 
     # update P
     set!(S.P_S, calc_P(S.λ_S, S.G, S.num_P, ch_S))

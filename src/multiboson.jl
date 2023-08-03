@@ -80,7 +80,7 @@ end
 # multiboson vertex in singlet channel
 function calc_M!(
     M   :: MatsubaraFunction{3, 1, 4, Float64},
-    G   :: MatsubaraFunction{1, 1, 2, Float64}, 
+    Π   :: MatsubaraFunction{2, 1, 3, Float64}, 
     T   :: MatsubaraFunction{3, 1, 4, Float64}, 
     M_S :: MatsubaraFunction{3, 1, 4, Float64}, 
     SG  :: MatsubaraSymmetryGroup,
@@ -92,14 +92,27 @@ function calc_M!(
 
         w, v, vp  = wtpl 
         val       = 0.0
-        ex        = (true, 0.0)
+        v1, v2    = grids(Π, 2)(grids(T, 2)[1]), grids(Π, 2)(grids(T, 2)[end])
+        Πslice    = view(Π, w, v1 : v2)
+        M_S_slice = view(M_S, w, :, vp)
         T_L_slice = view(T, w, :, vp) 
         T_R_slice = view(T, w, :, v)
 
-        for i in eachindex(grids(T, 2))
-            vpp  = grids(T, 2)[i]
-            val += (T_L_slice[i] - M_S(w, vpp, vp; extrp = ex)) * G(vpp; extrp = ex) * G(w - vpp; extrp = ex) * T_R_slice[i]
+        # piecewise vectorization 
+        vl = grids(T, 2)(grids(M_S, 2)[1])
+        vr = grids(T, 2)(grids(M_S, 2)[end])
+
+        @turbo for i in 1 : vl - 1
+            val += (T_L_slice[i] - M_S_slice[1]) * Πslice[i] * T_R_slice[i]
         end 
+
+        @turbo for i in vl : vr
+            val += (T_L_slice[i] - M_S_slice[i - vl + 1]) * Πslice[i] * T_R_slice[i]
+        end
+
+        @turbo for i in vr + 1 : length(T_L_slice)
+            val += (T_L_slice[i] - M_S_slice[vr - vl + 1]) * Πslice[i] * T_R_slice[i]
+        end
 
         return 0.5 * temperature(M) * val
     end 
@@ -113,7 +126,7 @@ end
 # multiboson vertex in triplet channel
 function calc_M!(
     M   :: MatsubaraFunction{3, 1, 4, Float64},
-    G   :: MatsubaraFunction{1, 1, 2, Float64}, 
+    Π   :: MatsubaraFunction{2, 1, 3, Float64}, 
     T   :: MatsubaraFunction{3, 1, 4, Float64}, 
     M_T :: MatsubaraFunction{3, 1, 4, Float64}, 
     SG  :: MatsubaraSymmetryGroup,
@@ -125,15 +138,27 @@ function calc_M!(
 
         w, v, vp  = wtpl 
         val       = 0.0
-        ex        = (true, 0.0)
+        v1, v2    = grids(Π, 2)(grids(T, 2)[1]), grids(Π, 2)(grids(T, 2)[end])
+        Πslice    = view(Π, w, v1 : v2)
+        M_T_slice = view(M_T, w, :, vp)
         T_L_slice = view(T, w, :, vp) 
         T_R_slice = view(T, w, :, v)
 
-        # additional minus sign from use of crossing symmetry
-        for i in eachindex(grids(T, 2))
-            vpp  = grids(T, 2)[i]
-            val -= (T_L_slice[i] - M_T(w, vpp, vp; extrp = ex)) * G(vpp; extrp = ex) * G(w - vpp; extrp = ex) * T_R_slice[i]
+        # piecewise vectorization, additional minus sign from use of crossing symmetry
+        vl = grids(T, 2)(grids(M_T, 2)[1])
+        vr = grids(T, 2)(grids(M_T, 2)[end])
+
+        @turbo for i in 1 : vl - 1
+            val -= (T_L_slice[i] - M_T_slice[1]) * Πslice[i] * T_R_slice[i]
         end 
+
+        @turbo for i in vl : vr
+            val -= (T_L_slice[i] - M_T_slice[i - vl + 1]) * Πslice[i] * T_R_slice[i]
+        end
+
+        @turbo for i in vr + 1 : length(T_L_slice)
+            val -= (T_L_slice[i] - M_T_slice[vr - vl + 1]) * Πslice[i] * T_R_slice[i]
+        end
 
         return 0.5 * temperature(M) * val
     end 
@@ -147,7 +172,7 @@ end
 # multiboson vertex in density channel
 function calc_M!(
     M   :: MatsubaraFunction{3, 1, 4, Float64},
-    G   :: MatsubaraFunction{1, 1, 2, Float64}, 
+    Π   :: MatsubaraFunction{2, 1, 3, Float64}, 
     T   :: MatsubaraFunction{3, 1, 4, Float64}, 
     M_D :: MatsubaraFunction{3, 1, 4, Float64}, 
     SG  :: MatsubaraSymmetryGroup,
@@ -159,14 +184,27 @@ function calc_M!(
 
         w, v, vp  = wtpl 
         val       = 0.0
-        ex        = (true, 0.0)
+        v1, v2    = grids(Π, 2)(grids(T, 3)[1]), grids(Π, 2)(grids(T, 3)[end])
+        Πslice    = view(Π, w, v1 : v2)
+        M_D_slice = view(M_D, w, v, :)
         T_L_slice = view(T, w, v, :)
         T_R_slice = view(T, w, vp, :)
 
-        for i in eachindex(grids(T, 3))
-            vpp  = grids(T, 3)[i]
-            val -= (T_L_slice[i] - M_D(w, v, vpp; extrp = ex)) * G(w + vpp; extrp = ex) * G(vpp; extrp = ex) * T_R_slice[i]
+        # piecewise vectorization 
+        vl = grids(T, 3)(grids(M_D, 3)[1])
+        vr = grids(T, 3)(grids(M_D, 3)[end])
+
+        @turbo for i in 1 : vl - 1
+            val -= (T_L_slice[i] - M_D_slice[1]) * Πslice[i] * T_R_slice[i]
         end 
+
+        @turbo for i in vl : vr
+            val -= (T_L_slice[i] - M_D_slice[i - vl + 1]) * Πslice[i] * T_R_slice[i]
+        end
+
+        @turbo for i in vr + 1 : length(T_L_slice)
+            val -= (T_L_slice[i] - M_D_slice[vr - vl + 1]) * Πslice[i] * T_R_slice[i]
+        end
 
         return temperature(M) * val
     end 
@@ -180,12 +218,12 @@ end
 # multiboson vertex in magnetic channel
 function calc_M!(
     M   :: MatsubaraFunction{3, 1, 4, Float64},
-    G   :: MatsubaraFunction{1, 1, 2, Float64}, 
+    Π   :: MatsubaraFunction{2, 1, 3, Float64}, 
     T   :: MatsubaraFunction{3, 1, 4, Float64}, 
     M_M :: MatsubaraFunction{3, 1, 4, Float64}, 
     SG  :: MatsubaraSymmetryGroup,
         :: Type{ch_M}
     )   :: Nothing
 
-    return calc_M!(M, G, T, M_M, SG, ch_D)
+    return calc_M!(M, Π, T, M_M, SG, ch_D)
 end   
