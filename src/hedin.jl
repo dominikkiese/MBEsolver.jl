@@ -39,7 +39,7 @@ end
 # Hedin vertex in singlet channel
 function calc_λ!(
     λ  :: MatsubaraFunction{2, 1, 3, Float64},
-    G  :: MatsubaraFunction{1, 1, 2, Float64},
+    Π  :: MatsubaraFunction{2, 1, 3, Float64},
     T  :: MatsubaraFunction{3, 1, 4, Float64},
     SG :: MatsubaraSymmetryGroup,
        :: Type{ch_S}
@@ -50,12 +50,12 @@ function calc_λ!(
 
         w, v    = wtpl
         val     = 0.0
-        ex      = (true, 0.0)
+        v1, v2  = grids(Π, 2)(grids(T, 2)[1]), grids(Π, 2)(grids(T, 2)[end])
+        Π_slice = view(Π, w, v1 : v2)
         T_slice = view(T, w, :, v)
 
-        for i in eachindex(grids(T, 2))
-            vp   = grids(T, 2)[i]
-            val += T_slice[i] * G(vp; extrp = ex) * G(w - vp; extrp = ex)
+        @turbo for i in 1 : length(grids(T, 2))
+            val += T_slice[i] * Π_slice[i]
         end
 
         return 1.0 + 0.5 * temperature(λ) * val
@@ -70,7 +70,7 @@ end
 # Hedin vertex in density channel
 function calc_λ!(
     λ  :: MatsubaraFunction{2, 1, 3, Float64},
-    G  :: MatsubaraFunction{1, 1, 2, Float64},
+    Π  :: MatsubaraFunction{2, 1, 3, Float64},
     T  :: MatsubaraFunction{3, 1, 4, Float64},
     SG :: MatsubaraSymmetryGroup,
        :: Type{ch_D}
@@ -81,12 +81,12 @@ function calc_λ!(
 
         w, v    = wtpl
         val     = 0.0
-        ex      = (true, 0.0)
+        v1, v2  = grids(Π, 2)(grids(T, 3)[1]), grids(Π, 2)(grids(T, 3)[end])
+        Π_slice = view(Π, w, v1 : v2)
         T_slice = view(T, w, v, :)
 
-        for i in eachindex(grids(T, 3))
-            vp   = grids(T, 3)[i]
-            val -= T_slice[i] * G(w + vp; extrp = ex) * G(vp; extrp = ex)
+        @turbo for i in 1 : length(grids(T, 3))
+            val -= T_slice[i] * Π_slice[i]
         end
 
         return 1.0 + temperature(λ) * val
@@ -101,11 +101,11 @@ end
 # Hedin vertex in magnetic channel
 function calc_λ!(
     λ  :: MatsubaraFunction{2, 1, 3, Float64},
-    G  :: MatsubaraFunction{1, 1, 2, Float64},
+    Π  :: MatsubaraFunction{2, 1, 3, Float64},
     T  :: MatsubaraFunction{3, 1, 4, Float64},
     SG :: MatsubaraSymmetryGroup,
        :: Type{ch_M}
     )  :: Nothing
 
-    return calc_λ!(λ, G, T, SG, ch_D)  
+    return calc_λ!(λ, Π, T, SG, ch_D)  
 end

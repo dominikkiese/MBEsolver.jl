@@ -93,7 +93,7 @@ function calc_M!(
         w, v, vp  = wtpl 
         val       = 0.0
         v1, v2    = grids(Π, 2)(grids(T, 2)[1]), grids(Π, 2)(grids(T, 2)[end])
-        Πslice    = view(Π, w, v1 : v2)
+        Π_slice   = view(Π, w, v1 : v2)
         M_S_slice = view(M_S, w, :, vp)
         T_L_slice = view(T, w, :, vp) 
         T_R_slice = view(T, w, :, v)
@@ -103,15 +103,15 @@ function calc_M!(
         vr = grids(T, 2)(grids(M_S, 2)[end])
 
         @turbo for i in 1 : vl - 1
-            val += (T_L_slice[i] - M_S_slice[1]) * Πslice[i] * T_R_slice[i]
+            val += (T_L_slice[i] - M_S_slice[1]) * Π_slice[i] * T_R_slice[i]
         end 
 
         @turbo for i in vl : vr
-            val += (T_L_slice[i] - M_S_slice[i - vl + 1]) * Πslice[i] * T_R_slice[i]
+            val += (T_L_slice[i] - M_S_slice[i - vl + 1]) * Π_slice[i] * T_R_slice[i]
         end
 
         @turbo for i in vr + 1 : length(T_L_slice)
-            val += (T_L_slice[i] - M_S_slice[vr - vl + 1]) * Πslice[i] * T_R_slice[i]
+            val += (T_L_slice[i] - M_S_slice[vr - vl + 1]) * Π_slice[i] * T_R_slice[i]
         end
 
         return 0.5 * temperature(M) * val
@@ -139,7 +139,7 @@ function calc_M!(
         w, v, vp  = wtpl 
         val       = 0.0
         v1, v2    = grids(Π, 2)(grids(T, 2)[1]), grids(Π, 2)(grids(T, 2)[end])
-        Πslice    = view(Π, w, v1 : v2)
+        Π_slice   = view(Π, w, v1 : v2)
         M_T_slice = view(M_T, w, :, vp)
         T_L_slice = view(T, w, :, vp) 
         T_R_slice = view(T, w, :, v)
@@ -149,15 +149,15 @@ function calc_M!(
         vr = grids(T, 2)(grids(M_T, 2)[end])
 
         @turbo for i in 1 : vl - 1
-            val -= (T_L_slice[i] - M_T_slice[1]) * Πslice[i] * T_R_slice[i]
+            val -= (T_L_slice[i] - M_T_slice[1]) * Π_slice[i] * T_R_slice[i]
         end 
 
         @turbo for i in vl : vr
-            val -= (T_L_slice[i] - M_T_slice[i - vl + 1]) * Πslice[i] * T_R_slice[i]
+            val -= (T_L_slice[i] - M_T_slice[i - vl + 1]) * Π_slice[i] * T_R_slice[i]
         end
 
         @turbo for i in vr + 1 : length(T_L_slice)
-            val -= (T_L_slice[i] - M_T_slice[vr - vl + 1]) * Πslice[i] * T_R_slice[i]
+            val -= (T_L_slice[i] - M_T_slice[vr - vl + 1]) * Π_slice[i] * T_R_slice[i]
         end
 
         return 0.5 * temperature(M) * val
@@ -185,7 +185,7 @@ function calc_M!(
         w, v, vp  = wtpl 
         val       = 0.0
         v1, v2    = grids(Π, 2)(grids(T, 3)[1]), grids(Π, 2)(grids(T, 3)[end])
-        Πslice    = view(Π, w, v1 : v2)
+        Π_slice   = view(Π, w, v1 : v2)
         M_D_slice = view(M_D, w, v, :)
         T_L_slice = view(T, w, v, :)
         T_R_slice = view(T, w, vp, :)
@@ -195,15 +195,15 @@ function calc_M!(
         vr = grids(T, 3)(grids(M_D, 3)[end])
 
         @turbo for i in 1 : vl - 1
-            val -= (T_L_slice[i] - M_D_slice[1]) * Πslice[i] * T_R_slice[i]
+            val -= (T_L_slice[i] - M_D_slice[1]) * Π_slice[i] * T_R_slice[i]
         end 
 
         @turbo for i in vl : vr
-            val -= (T_L_slice[i] - M_D_slice[i - vl + 1]) * Πslice[i] * T_R_slice[i]
+            val -= (T_L_slice[i] - M_D_slice[i - vl + 1]) * Π_slice[i] * T_R_slice[i]
         end
 
         @turbo for i in vr + 1 : length(T_L_slice)
-            val -= (T_L_slice[i] - M_D_slice[vr - vl + 1]) * Πslice[i] * T_R_slice[i]
+            val -= (T_L_slice[i] - M_D_slice[vr - vl + 1]) * Π_slice[i] * T_R_slice[i]
         end
 
         return temperature(M) * val

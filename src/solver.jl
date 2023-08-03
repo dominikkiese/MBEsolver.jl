@@ -330,9 +330,9 @@ function fixed_point!(
     calc_T_ph!(S.T_D, S.T_M, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U)
 
     # calculate λ
-    calc_λ!(S.λ_S_dummy, S.G, S.T_S, S.SG_λ_p, ch_S)
-    calc_λ!(S.λ_D_dummy, S.G, S.T_D, S.SG_λ_d, ch_D)
-    calc_λ!(S.λ_M_dummy, S.G, S.T_M, S.SG_λ_d, ch_M)
+    calc_λ!(S.λ_S_dummy, S.Π_pp, S.T_S, S.SG_λ_p, ch_S)
+    calc_λ!(S.λ_D_dummy, S.Π_ph, S.T_D, S.SG_λ_d, ch_D)
+    calc_λ!(S.λ_M_dummy, S.Π_ph, S.T_M, S.SG_λ_d, ch_M)
 
     # calculate M
     calc_M!(S.M_S_dummy, S.Π_pp, S.T_S, S.M_S, S.SG_M_S, ch_S)
