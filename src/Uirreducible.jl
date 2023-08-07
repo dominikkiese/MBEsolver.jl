@@ -255,7 +255,7 @@ function calc_T(
     return T 
 end
 
-# inplace calculation of irreducible vertices in pp channel
+# inplace calculation of irreducible vertices in ph channel
 function calc_T_ph!(
     T_D :: MatsubaraFunction{3, 1, 4, Float64},
     T_M :: MatsubaraFunction{3, 1, 4, Float64},
