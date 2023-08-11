@@ -4,7 +4,7 @@ function calc_G(
     Σ  :: MatsubaraFunction{1, 1, 2, Float64}
     )  :: MatsubaraFunction{1, 1, 2, Float64}
 
-    G = deepcopy(G0)
+    G = copy(G0)
 
     for v in grids(G, 1)
         # positive sign for Σ since (-i was factored out)
@@ -21,7 +21,7 @@ function calc_η(
     val :: Float64
     )   :: MatsubaraFunction{1, 1, 2, Float64}
 
-    ηp = deepcopy(P)
+    ηp = copy(P)
 
     for w in grids(P, 1)
         ηp[w] = val * (1.0 + P[w] * η[w])

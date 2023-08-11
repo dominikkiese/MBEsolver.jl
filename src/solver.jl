@@ -176,10 +176,10 @@ mutable struct Solver
 
         # dummy initialization of symmetry groups 
         SG_λ_p = MatsubaraSymmetryGroup(λ_S)
-        SG_λ_d = deepcopy(SG_λ_p)
+        SG_λ_d = MatsubaraSymmetryGroup(λ_D)
         SG_M_S = MatsubaraSymmetryGroup(M_S)
-        SG_M_T = deepcopy(SG_M_S)
-        SG_M_d = deepcopy(SG_M_S)
+        SG_M_T = MatsubaraSymmetryGroup(M_T)
+        SG_M_d = MatsubaraSymmetryGroup(M_D)
 
         # build the solver 
         return new(T, U, V, D, num_Σ, num_P, mem, α, tol, maxiter, 
