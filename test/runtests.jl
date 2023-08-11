@@ -24,7 +24,7 @@ MPI.Init()
     maxiter = 25
 
     # build the solver 
-    S = Solver(T, U, V, D, num_G, num_Σ, num_P, num_λ_w, num_λ_v, num_M_w, num_M_v; mem, α, tol, maxiter)
+    S = MBEsolver.Solver(T, U, V, D, num_G, num_Σ, num_P, num_λ_w, num_λ_v, num_M_w, num_M_v; mem, α, tol, maxiter)
 
     # run the solver 
     solve!(S)
@@ -72,7 +72,7 @@ end
     maxiter = 25
 
     # build the solver 
-    S = Solver(T, U, V, D, num_G, num_Σ, num_P, num_λ_w, num_λ_v, num_M_w, num_M_v; mem, α, tol, maxiter)
+    S = MBEsolver.Solver(T, U, V, D, num_G, num_Σ, num_P, num_λ_w, num_λ_v, num_M_w, num_M_v; mem, α, tol, maxiter)
 
     # calculate the symmetry groups 
     sym_λ_p = [MatsubaraSymmetry{2, 1}(s1_λ_p), MatsubaraSymmetry{2, 1}(s2_λ_p)]

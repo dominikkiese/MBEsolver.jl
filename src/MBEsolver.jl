@@ -75,7 +75,6 @@ module MBEsolver
         s3_M_d,
 
         # solver.jl
-        Solver, 
         init_sym_grp!,
         solve!,
         save_solver!

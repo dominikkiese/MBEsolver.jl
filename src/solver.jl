@@ -1,56 +1,58 @@
 mutable struct Solver
     # numerical parameters
-    T       :: Float64 
-    U       :: Float64 
-    V       :: Float64
-    D       :: Float64
-    num_Σ   :: Int64
-    num_P   :: Int64
+    const T     :: Float64 
+    const U     :: Float64 
+    const V     :: Float64
+    const D     :: Float64
+    const num_Σ :: Int64
+    const num_P :: Int64
+
+    # solver parameters
     mem     :: Int64 
     α       :: Float64 
     tol     :: Float64
     maxiter :: Int64
 
     # propagators and bubbles
-    G0   :: MatsubaraFunction{1, 1, 2, Float64}
-    G    :: MatsubaraFunction{1, 1, 2, Float64}
-    Σ    :: MatsubaraFunction{1, 1, 2, Float64}
-    Π_pp :: MatsubaraFunction{2, 1, 3, Float64}
-    Π_ph :: MatsubaraFunction{2, 1, 3, Float64}
+    const G0   :: MatsubaraFunction{1, 1, 2, Float64}
+    const G    :: MatsubaraFunction{1, 1, 2, Float64}
+    const Σ    :: MatsubaraFunction{1, 1, 2, Float64}
+    const Π_pp :: MatsubaraFunction{2, 1, 3, Float64}
+    const Π_ph :: MatsubaraFunction{2, 1, 3, Float64}
 
     # polarizations
-    P_S :: MatsubaraFunction{1, 1, 2, Float64}
-    P_D :: MatsubaraFunction{1, 1, 2, Float64}
-    P_M :: MatsubaraFunction{1, 1, 2, Float64}
+    const P_S :: MatsubaraFunction{1, 1, 2, Float64}
+    const P_D :: MatsubaraFunction{1, 1, 2, Float64}
+    const P_M :: MatsubaraFunction{1, 1, 2, Float64}
 
     # screened interactions
-    η_S :: MatsubaraFunction{1, 1, 2, Float64}
-    η_D :: MatsubaraFunction{1, 1, 2, Float64}
-    η_M :: MatsubaraFunction{1, 1, 2, Float64}
+    const η_S :: MatsubaraFunction{1, 1, 2, Float64}
+    const η_D :: MatsubaraFunction{1, 1, 2, Float64}
+    const η_M :: MatsubaraFunction{1, 1, 2, Float64}
 
     # Hedin vertices and their buffers for inplace calculations
-    λ_S       :: MatsubaraFunction{2, 1, 3, Float64}
-    λ_D       :: MatsubaraFunction{2, 1, 3, Float64}
-    λ_M       :: MatsubaraFunction{2, 1, 3, Float64}
-    λ_S_dummy :: MatsubaraFunction{2, 1, 3, Float64}
-    λ_D_dummy :: MatsubaraFunction{2, 1, 3, Float64}
-    λ_M_dummy :: MatsubaraFunction{2, 1, 3, Float64}
+    const λ_S       :: MatsubaraFunction{2, 1, 3, Float64}
+    const λ_D       :: MatsubaraFunction{2, 1, 3, Float64}
+    const λ_M       :: MatsubaraFunction{2, 1, 3, Float64}
+    const λ_S_dummy :: MatsubaraFunction{2, 1, 3, Float64}
+    const λ_D_dummy :: MatsubaraFunction{2, 1, 3, Float64}
+    const λ_M_dummy :: MatsubaraFunction{2, 1, 3, Float64}
 
     # buffers for irreducible vertices
-    T_S :: MatsubaraFunction{3, 1, 4, Float64}
-    T_T :: MatsubaraFunction{3, 1, 4, Float64}
-    T_D :: MatsubaraFunction{3, 1, 4, Float64}
-    T_M :: MatsubaraFunction{3, 1, 4, Float64}
+    const T_S :: MatsubaraFunction{3, 1, 4, Float64}
+    const T_T :: MatsubaraFunction{3, 1, 4, Float64}
+    const T_D :: MatsubaraFunction{3, 1, 4, Float64}
+    const T_M :: MatsubaraFunction{3, 1, 4, Float64}
 
     # multiboson vertices and their buffers for inplace calculations
-    M_S       :: MatsubaraFunction{3, 1, 4, Float64}
-    M_T       :: MatsubaraFunction{3, 1, 4, Float64}
-    M_D       :: MatsubaraFunction{3, 1, 4, Float64}
-    M_M       :: MatsubaraFunction{3, 1, 4, Float64}
-    M_S_dummy :: MatsubaraFunction{3, 1, 4, Float64}
-    M_T_dummy :: MatsubaraFunction{3, 1, 4, Float64}
-    M_D_dummy :: MatsubaraFunction{3, 1, 4, Float64}
-    M_M_dummy :: MatsubaraFunction{3, 1, 4, Float64}
+    const M_S       :: MatsubaraFunction{3, 1, 4, Float64}
+    const M_T       :: MatsubaraFunction{3, 1, 4, Float64}
+    const M_D       :: MatsubaraFunction{3, 1, 4, Float64}
+    const M_M       :: MatsubaraFunction{3, 1, 4, Float64}
+    const M_S_dummy :: MatsubaraFunction{3, 1, 4, Float64}
+    const M_T_dummy :: MatsubaraFunction{3, 1, 4, Float64}
+    const M_D_dummy :: MatsubaraFunction{3, 1, 4, Float64}
+    const M_M_dummy :: MatsubaraFunction{3, 1, 4, Float64}
 
     # vertex symmetry groups
     SG_λ_p :: MatsubaraSymmetryGroup 
