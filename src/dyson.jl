@@ -8,7 +8,7 @@ function calc_G(
 
     for v in grids(G, 1)
         # positive sign for Σ since (-i was factored out)
-        G[v] = 1.0 / (1.0 / G0[v] + Σ(v; extrp = (true, 0.0)))
+        G[v] = 1.0 / (1.0 / G0[v] + Σ(v))
     end 
 
     return G
@@ -36,12 +36,17 @@ function calc_Π!(
     Π_ph :: MatsubaraFunction{2, 1, 3, Float64},
     G    :: MatsubaraFunction{1, 1, 2, Float64}
     )    :: Nothing 
-
-    ex = (true, 0.0)
     
-    for w in grids(Π_pp, 1), v in grids(Π_pp, 2)
-        Π_pp[w, v] = G(v; extrp = ex) * G(w - v; extrp = ex)
-        Π_ph[w, v] = G(w + v; extrp = ex) * G(v; extrp = ex)
+    L = grids_shape(Π_pp, 2)
+
+    @batch per = thread for v_idx in 1 : L
+        v = grids(Π_pp, 2)[v_idx]
+        g = G(v)
+        
+        for w in grids(Π_pp, 1)
+            Π_pp[w, v] = g * G(w - v)
+            Π_ph[w, v] = g * G(w + v)
+        end
     end
 
     return nothing 

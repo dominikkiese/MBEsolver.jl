@@ -9,9 +9,10 @@ function calc_P(
     # generate container for P
     T = temperature(Π)
     P = MatsubaraFunction(MatsubaraGrid(T, num_w, Boson), 1, Float64)
+    L = grids_shape(P, 1)
     set!(P, 0.0)
  
-    Threads.@threads for w_idx in eachindex(grids(P, 1))
+    @batch per = thread for w_idx in 1 : L
         w       = grids(P, 1)[w_idx]
         w_λ     = grids(λ, 1)[MatsubaraFunctions.grid_index_extrp(w, grids(λ, 1))]
         Π_slice = view(Π, w, :)
@@ -59,9 +60,10 @@ function calc_P(
     # generate container for P
     T = temperature(Π)
     P = MatsubaraFunction(MatsubaraGrid(T, num_w, Boson), 1, Float64)
+    L = grids_shape(P, 1)
     set!(P, 0.0)
 
-    Threads.@threads for w_idx in eachindex(grids(P, 1))
+    @batch per = thread for w_idx in 1 : L
         w       = grids(P, 1)[w_idx]
         w_λ     = grids(λ, 1)[MatsubaraFunctions.grid_index_extrp(w, grids(λ, 1))]
         Π_slice = view(Π, w, :)

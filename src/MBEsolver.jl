@@ -6,6 +6,7 @@ module MBEsolver
         using MPI
         using MatsubaraFunctions
         using LoopVectorization
+        using Polyester
         using NLsolve
         using HDF5
     end
