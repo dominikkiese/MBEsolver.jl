@@ -18,26 +18,25 @@ function calc_P(
         Π_slice = view(Π, w, :)
         λ_slice = view(λ, w_λ, :)
 
-        # piecewise vectorization
         vl = grids(Π, 2)(grids(λ, 2)[1])
         vr = grids(Π, 2)(grids(λ, 2)[end])
 
         val1 = 0.0
 
-        @turbo for i in 1 : vl - 1
+        for i in 1 : vl - 1
             val1 += Π_slice[i]
         end
 
         val1 *= λ_slice[1]
         val2  = 0.0
 
-        @turbo for i in vl : vr
+        for i in vl : vr
             val2 += Π_slice[i] * λ_slice[i - vl + 1]
         end
 
         val3 = 0.0
 
-        @turbo for i in vr + 1 : length(Π_slice)
+        for i in vr + 1 : length(Π_slice)
             val3 += Π_slice[i]
         end
 
@@ -69,26 +68,25 @@ function calc_P(
         Π_slice = view(Π, w, :)
         λ_slice = view(λ, w_λ, :)
 
-        # piecewise vectorization
         vl = grids(Π, 2)(grids(λ, 2)[1])
         vr = grids(Π, 2)(grids(λ, 2)[end])
 
         val1 = 0.0
 
-        @turbo for i in 1 : vl - 1
+        for i in 1 : vl - 1
             val1 -= Π_slice[i]
         end
 
         val1 *= λ_slice[1]
         val2  = 0.0
 
-        @turbo for i in vl : vr
+        for i in vl : vr
             val2 -= Π_slice[i] * λ_slice[i - vl + 1]
         end
 
         val3 = 0.0
 
-        @turbo for i in vr + 1 : length(Π_slice)
+        for i in vr + 1 : length(Π_slice)
             val3 -= Π_slice[i]
         end
 

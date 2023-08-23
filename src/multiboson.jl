@@ -98,19 +98,18 @@ function calc_M!(
         T_L_slice = view(T, w, :, vp) 
         T_R_slice = view(T, w, :, v)
 
-        # piecewise vectorization 
         vl = grids(T, 2)(grids(M_S, 2)[1])
         vr = grids(T, 2)(grids(M_S, 2)[end])
 
-        @turbo for i in 1 : vl - 1
+        for i in 1 : vl - 1
             val += (T_L_slice[i] - M_S_slice[1]) * Π_slice[i] * T_R_slice[i]
         end 
 
-        @turbo for i in vl : vr
+        for i in vl : vr
             val += (T_L_slice[i] - M_S_slice[i - vl + 1]) * Π_slice[i] * T_R_slice[i]
         end
 
-        @turbo for i in vr + 1 : length(T_L_slice)
+        for i in vr + 1 : length(T_L_slice)
             val += (T_L_slice[i] - M_S_slice[vr - vl + 1]) * Π_slice[i] * T_R_slice[i]
         end
 
@@ -144,19 +143,19 @@ function calc_M!(
         T_L_slice = view(T, w, :, vp) 
         T_R_slice = view(T, w, :, v)
 
-        # piecewise vectorization, additional minus sign from use of crossing symmetry
+        # additional minus sign from use of crossing symmetry
         vl = grids(T, 2)(grids(M_T, 2)[1])
         vr = grids(T, 2)(grids(M_T, 2)[end])
 
-        @turbo for i in 1 : vl - 1
+        for i in 1 : vl - 1
             val -= (T_L_slice[i] - M_T_slice[1]) * Π_slice[i] * T_R_slice[i]
         end 
 
-        @turbo for i in vl : vr
+        for i in vl : vr
             val -= (T_L_slice[i] - M_T_slice[i - vl + 1]) * Π_slice[i] * T_R_slice[i]
         end
 
-        @turbo for i in vr + 1 : length(T_L_slice)
+        for i in vr + 1 : length(T_L_slice)
             val -= (T_L_slice[i] - M_T_slice[vr - vl + 1]) * Π_slice[i] * T_R_slice[i]
         end
 
@@ -190,19 +189,18 @@ function calc_M!(
         T_L_slice = view(T, w, v, :)
         T_R_slice = view(T, w, vp, :)
 
-        # piecewise vectorization 
         vl = grids(T, 3)(grids(M_D, 3)[1])
         vr = grids(T, 3)(grids(M_D, 3)[end])
 
-        @turbo for i in 1 : vl - 1
+        for i in 1 : vl - 1
             val -= (T_L_slice[i] - M_D_slice[1]) * Π_slice[i] * T_R_slice[i]
         end 
 
-        @turbo for i in vl : vr
+        for i in vl : vr
             val -= (T_L_slice[i] - M_D_slice[i - vl + 1]) * Π_slice[i] * T_R_slice[i]
         end
 
-        @turbo for i in vr + 1 : length(T_L_slice)
+        for i in vr + 1 : length(T_L_slice)
             val -= (T_L_slice[i] - M_D_slice[vr - vl + 1]) * Π_slice[i] * T_R_slice[i]
         end
 

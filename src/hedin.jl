@@ -54,7 +54,7 @@ function calc_λ!(
         Π_slice = view(Π, w, v1 : v2)
         T_slice = view(T, w, :, v)
 
-        @turbo for i in eachindex(Π_slice)
+        for i in eachindex(Π_slice)
             val += T_slice[i] * Π_slice[i]
         end
 
@@ -85,7 +85,7 @@ function calc_λ!(
         Π_slice = view(Π, w, v1 : v2)
         T_slice = view(T, w, v, :)
 
-        @turbo for i in eachindex(Π_slice)
+        for i in eachindex(Π_slice)
             val -= T_slice[i] * Π_slice[i]
         end
 
