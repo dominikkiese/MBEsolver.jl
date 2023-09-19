@@ -27,7 +27,7 @@ MPI.Init()
     S = MBEsolver.Solver(T, U, V, D, num_G, num_Σ, num_P, num_λ_w, num_λ_v, num_M_w, num_M_v; mem, α, tol, maxiter)
 
     # run the solver 
-    solve!(S)
+    MBEsolver.solve!(S)
     
     # compare to reference data
     ref_file = h5open(joinpath(dirname(@__FILE__), "refnosym.h5"), "r")
@@ -83,7 +83,7 @@ end
     init_sym_grp!(S, sym_λ_p, sym_λ_d, sym_M_S, sym_M_T, sym_M_d)
 
     # run the solver 
-    solve!(S)
+    MBEsolver.solve!(S)
 
     # compare to reference data
     ref_file = h5open(joinpath(dirname(@__FILE__), "refsym.h5"), "r")
