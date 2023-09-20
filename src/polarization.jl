@@ -40,7 +40,7 @@ function calc_P(
             val3 += Π_slice[i]
         end
 
-        val3 *= λ_slice[vr - vl + 1]
+        val3 *= λ_slice[end]
         P[w]  = val1 + val2 + val3
     end 
 
@@ -90,7 +90,7 @@ function calc_P(
             val3 -= Π_slice[i]
         end
 
-        val3 *= λ_slice[vr - vl + 1]
+        val3 *= λ_slice[end]
         P[w]  = val1 + val2 + val3
     end
 

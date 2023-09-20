@@ -7,11 +7,13 @@ mutable struct Solver
     const num_Σ :: Int64
     const num_P :: Int64
 
-    # solver parameters
-    mem     :: Int64 
-    α       :: Float64 
-    tol     :: Float64
-    maxiter :: Int64
+    # solver parameters for periodic Pulay mixing
+    m     :: Int64 
+    p     :: Int64
+    α     :: Float64 
+    atol  :: Float64
+    rtol  :: Float64
+    iters :: Int64
 
     # propagators and bubbles
     const G0   :: MatsubaraFunction{1, 1, 2, Float64}
@@ -75,10 +77,12 @@ mutable struct Solver
         num_M_w :: Int64,
         num_M_v :: Int64,
         ;
-        mem     :: Int64   = 8,
-        α       :: Float64 = 0.85,
-        tol     :: Float64 = 1e-4,   
-        maxiter :: Int64   = 100
+        m       :: Int64   = 5,
+        p       :: Int64   = 3,
+        α       :: Float64 = 0.5,
+        atol    :: Float64 = 1e-5,
+        rtol    :: Float64 = 1e-3,   
+        iters   :: Int64   = 100
         )       :: Solver
 
         # sanity checks 
@@ -182,7 +186,7 @@ mutable struct Solver
         SG_M_d = MatsubaraSymmetryGroup(M_D)
 
         # build the solver 
-        return new(T, U, V, D, num_Σ, num_P, mem, α, tol, maxiter, 
+        return new(T, U, V, D, num_Σ, num_P, m, p, α, atol, rtol, iters, 
                 G0, G, Σ, Π_pp, Π_ph,
                 P_S, P_D, P_M, 
                 η_S, η_D, η_M, 
@@ -381,24 +385,25 @@ function solve!(
     S :: Solver
     ) :: Nothing 
 
-    mpi_println("")
     mpi_println("Running MBE solver ...")
     mpi_println("")
 
-    ti     = time()
-    result = nlsolve((F, x) -> fixed_point!(F, x, S), flatten(S),
-            method     = :anderson, 
-            beta       = S.α, 
-            m          = S.mem, 
-            ftol       = S.tol, 
-            iterations = S.maxiter,
-            show_trace = mpi_ismain())
+    ti = time()
+    PP = PeriodicPulay(flatten(S); m = S.m)
+
+    MatsubaraFunctions.solve!((F, x) -> fixed_point!(F, x, S), PP,
+        p       = S.p,
+        iters   = S.iters,
+        α       = S.α,
+        atol    = S.atol,
+        rtol    = S.rtol,
+        verbose = true)
     
     dt = time() - ti
-    unflatten!(S, result.zero)
+    unflatten!(S, PP.x)
 
     mpi_println("")
-    mpi_println("Done. Calculation took $(dt) seconds.")
+    mpi_println("Done. Time elapsed $(dt)s.")
 
     return nothing 
 end
@@ -409,16 +414,18 @@ function save_solver!(
     S    :: Solver
     )    :: Nothing
 
-    attributes(file)["T"]       = S.T 
-    attributes(file)["U"]       = S.U 
-    attributes(file)["V"]       = S.V
-    attributes(file)["D"]       = S.D
-    attributes(file)["num_Σ"]   = S.num_Σ
-    attributes(file)["num_P"]   = S.num_P
-    attributes(file)["mem"]     = S.mem 
-    attributes(file)["α"]       = S.α
-    attributes(file)["tol"]     = S.tol 
-    attributes(file)["maxiter"] = S.maxiter
+    attributes(file)["T"]     = S.T 
+    attributes(file)["U"]     = S.U 
+    attributes(file)["V"]     = S.V
+    attributes(file)["D"]     = S.D
+    attributes(file)["num_Σ"] = S.num_Σ
+    attributes(file)["num_P"] = S.num_P
+    attributes(file)["m"]     = S.m
+    attributes(file)["p"]     = S.p
+    attributes(file)["α"]     = S.α
+    attributes(file)["atol"]  = S.atol 
+    attributes(file)["rtol"]  = S.rtol 
+    attributes(file)["iters"] = S.iters
 
     save_matsubara_function!(file, "G0", S.G0)
     save_matsubara_function!(file, "G", S.G)

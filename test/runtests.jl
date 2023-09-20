@@ -18,13 +18,15 @@ MPI.Init()
     num_λ_v = 12 
     num_M_w = 6
     num_M_v = 4
-    mem     = 8
+    m       = 5
+    p       = 3
     α       = 0.5
-    tol     = 1e-4 
-    maxiter = 25
+    atol    = 1e-8
+    rtol    = 1e-8
+    iters   = 25
 
     # build the solver 
-    S = MBEsolver.Solver(T, U, V, D, num_G, num_Σ, num_P, num_λ_w, num_λ_v, num_M_w, num_M_v; mem, α, tol, maxiter)
+    S = MBEsolver.Solver(T, U, V, D, num_G, num_Σ, num_P, num_λ_w, num_λ_v, num_M_w, num_M_v; m, p, α, atol, rtol, iters)
 
     # run the solver 
     MBEsolver.solve!(S)
@@ -66,13 +68,15 @@ end
     num_λ_v = 12 
     num_M_w = 6
     num_M_v = 4
-    mem     = 8
+    m       = 5
+    p       = 3
     α       = 0.5
-    tol     = 1e-4 
-    maxiter = 25
+    atol    = 1e-8
+    rtol    = 1e-8
+    iters   = 25
 
     # build the solver 
-    S = MBEsolver.Solver(T, U, V, D, num_G, num_Σ, num_P, num_λ_w, num_λ_v, num_M_w, num_M_v; mem, α, tol, maxiter)
+    S = MBEsolver.Solver(T, U, V, D, num_G, num_Σ, num_P, num_λ_w, num_λ_v, num_M_w, num_M_v; m, p, α, atol, rtol, iters)
 
     # calculate the symmetry groups 
     sym_λ_p = [MatsubaraSymmetry{2, 1}(s1_λ_p), MatsubaraSymmetry{2, 1}(s2_λ_p)]
@@ -104,7 +108,7 @@ end
     @test S.M_T == load_matsubara_function(ref_file, "M_T")
     @test S.M_D == load_matsubara_function(ref_file, "M_D")
     @test S.M_M == load_matsubara_function(ref_file, "M_M")
-    
+
     mpi_println("")
     close(ref_file)
 end

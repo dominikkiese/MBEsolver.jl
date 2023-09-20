@@ -110,7 +110,7 @@ function calc_M!(
         end
 
         for i in vr + 1 : length(T_L_slice)
-            val += (T_L_slice[i] - M_S_slice[vr - vl + 1]) * Π_slice[i] * T_R_slice[i]
+            val += (T_L_slice[i] - M_S_slice[end]) * Π_slice[i] * T_R_slice[i]
         end
 
         return 0.5 * temperature(M) * val
@@ -156,7 +156,7 @@ function calc_M!(
         end
 
         for i in vr + 1 : length(T_L_slice)
-            val -= (T_L_slice[i] - M_T_slice[vr - vl + 1]) * Π_slice[i] * T_R_slice[i]
+            val -= (T_L_slice[i] - M_T_slice[end]) * Π_slice[i] * T_R_slice[i]
         end
 
         return 0.5 * temperature(M) * val
@@ -201,7 +201,7 @@ function calc_M!(
         end
 
         for i in vr + 1 : length(T_L_slice)
-            val -= (T_L_slice[i] - M_D_slice[vr - vl + 1]) * Π_slice[i] * T_R_slice[i]
+            val -= (T_L_slice[i] - M_D_slice[end]) * Π_slice[i] * T_R_slice[i]
         end
 
         return temperature(M) * val
