@@ -223,9 +223,9 @@ deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
 [[deps.MatsubaraFunctions]]
-deps = ["Aqua", "Documenter", "FunctionWrappers", "HDF5", "LinearAlgebra", "MPI", "Polyester", "PrecompileTools", "Test"]
-git-tree-sha1 = "457ffdd95ae21b7427471c4ce009d69e62f8084a"
-repo-rev = "unstable"
+deps = ["Aqua", "Documenter", "FunctionWrappers", "HDF5", "LinearAlgebra", "MPI", "Polyester", "PrecompileTools", "Printf", "Test"]
+git-tree-sha1 = "252d1ef8eb2ae8aa51151e9202807240203adc5a"
+repo-rev = "main"
 repo-url = "https://github.com/dominikkiese/MatsubaraFunctions.jl"
 uuid = "3b93aed6-d40a-4520-b131-eee49889bcc0"
 version = "0.1.0"
