@@ -14,4 +14,4 @@ pkg> add https://github.com/dominikkiese/MBEsolver.jl
 
 # Examples
 
-For examples on how to run the MBE solver, see our tests at `src/test/runtests.jl`.
+For examples on how to run the MBE solver, see our tests at `test/runtests.jl`.
