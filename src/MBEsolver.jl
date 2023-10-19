@@ -9,13 +9,6 @@ module MBEsolver
         using HDF5
     end
 
-    # define channel type for dispatch
-    abstract type Channel end 
-    struct ch_S <: Channel end 
-    struct ch_T <: Channel end
-    struct ch_D <: Channel end
-    struct ch_M <: Channel end
-
     include("types.jl")
     include("dyson.jl")
     include("polarization.jl")
@@ -57,13 +50,13 @@ module MBEsolver
     end
  
     export 
-        # hedin.jl
+        # hedin
         s1_λ_p,
         s2_λ_p,
         s1_λ_d,
         s2_λ_d,
 
-        # multiboson.jl 
+        # multiboson
         s1_M_S,
         s1_M_T,
         s2_M_S,
@@ -74,7 +67,7 @@ module MBEsolver
         s2_M_d,
         s3_M_d,
 
-        # solver.jl
+        # solver
         init_sym_grp!,
         solve!,
         save_solver!
