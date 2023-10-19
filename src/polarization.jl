@@ -1,15 +1,12 @@
 # polarization in singlet channel
-function calc_P(
-    λ     :: MatsubaraFunction{2, 1, 3, Float64},
-    Π     :: MatsubaraFunction{2, 1, 3, Float64},
-    num_w :: Int64,
-          :: Type{ch_S}
-    )     :: MatsubaraFunction{1, 1, 2, Float64}
+function calc_P(λ :: MF2, Π :: MF2, num_w :: Int64, :: Type{ch_S}) :: MF1
 
     # generate container for P
-    T = temperature(Π)
-    P = MatsubaraFunction(MatsubaraGrid(T, num_w, Boson), 1, Float64)
-    L = grids_shape(P, 1)
+    T  = temperature(Π)
+    P  = MatsubaraFunction(MatsubaraGrid(T, num_w, Boson); data_t = Float64)
+    L  = grids_shape(P, 1)
+    vl = grids(Π, 2)(grids(λ, 2)[1])
+    vr = grids(Π, 2)(grids(λ, 2)[end])
     set!(P, 0.0)
  
     @batch per = thread for w_idx in 1 : L
@@ -17,29 +14,23 @@ function calc_P(
         w_λ     = grids(λ, 1)[MatsubaraFunctions.grid_index_extrp(w, grids(λ, 1))]
         Π_slice = view(Π, w, :)
         λ_slice = view(λ, w_λ, :)
-
-        vl = grids(Π, 2)(grids(λ, 2)[1])
-        vr = grids(Π, 2)(grids(λ, 2)[end])
-
-        val1 = 0.0
+        val1    = 0.0
+        val2    = 0.0
+        val3    = 0.0
 
         for i in 1 : vl - 1
             val1 += Π_slice[i]
         end
 
-        val1 *= λ_slice[1]
-        val2  = 0.0
-
         for i in vl : vr
             val2 += Π_slice[i] * λ_slice[i - vl + 1]
         end
-
-        val3 = 0.0
 
         for i in vr + 1 : length(Π_slice)
             val3 += Π_slice[i]
         end
 
+        val1 *= λ_slice[1]
         val3 *= λ_slice[end]
         P[w]  = val1 + val2 + val3
     end 
@@ -49,17 +40,14 @@ function calc_P(
 end 
 
 # polarization in density channel
-function calc_P(
-    λ     :: MatsubaraFunction{2, 1, 3, Float64},
-    Π     :: MatsubaraFunction{2, 1, 3, Float64},
-    num_w :: Int64,
-          :: Type{ch_D}
-    )     :: MatsubaraFunction{1, 1, 2, Float64}
+function calc_P(λ :: MF2, Π :: MF2, num_w :: Int64, :: Type{ch_D}) :: MF1
 
     # generate container for P
-    T = temperature(Π)
-    P = MatsubaraFunction(MatsubaraGrid(T, num_w, Boson), 1, Float64)
-    L = grids_shape(P, 1)
+    T  = temperature(Π)
+    P  = MatsubaraFunction(MatsubaraGrid(T, num_w, Boson); data_t = Float64)
+    L  = grids_shape(P, 1)
+    vl = grids(Π, 2)(grids(λ, 2)[1])
+    vr = grids(Π, 2)(grids(λ, 2)[end])
     set!(P, 0.0)
 
     @batch per = thread for w_idx in 1 : L
@@ -67,29 +55,23 @@ function calc_P(
         w_λ     = grids(λ, 1)[MatsubaraFunctions.grid_index_extrp(w, grids(λ, 1))]
         Π_slice = view(Π, w, :)
         λ_slice = view(λ, w_λ, :)
-
-        vl = grids(Π, 2)(grids(λ, 2)[1])
-        vr = grids(Π, 2)(grids(λ, 2)[end])
-
-        val1 = 0.0
+        val1    = 0.0
+        val2    = 0.0
+        val3    = 0.0
 
         for i in 1 : vl - 1
             val1 -= Π_slice[i]
         end
 
-        val1 *= λ_slice[1]
-        val2  = 0.0
-
         for i in vl : vr
             val2 -= Π_slice[i] * λ_slice[i - vl + 1]
         end
-
-        val3 = 0.0
 
         for i in vr + 1 : length(Π_slice)
             val3 -= Π_slice[i]
         end
 
+        val1 *= λ_slice[1]
         val3 *= λ_slice[end]
         P[w]  = val1 + val2 + val3
     end
@@ -99,12 +81,4 @@ function calc_P(
 end
 
 # polarization in magnetic channel
-function calc_P(
-    λ     :: MatsubaraFunction{2, 1, 3, Float64},
-    Π     :: MatsubaraFunction{2, 1, 3, Float64},
-    num_w :: Int64,
-          :: Type{ch_M}
-    )     :: MatsubaraFunction{1, 1, 2, Float64}
-
-    return calc_P(λ, Π, num_w, ch_D)
-end
+calc_P(λ :: MF2, Π :: MF2, num_w :: Int64, :: Type{ch_M}) :: MF1 = calc_P(λ, Π, num_w, ch_D)

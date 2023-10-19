@@ -1,18 +1,18 @@
 # Schwinger-Dyson equation for Σ
 function calc_Σ(
-    G     :: MatsubaraFunction{1, 1, 2, Float64},
-    η_D   :: MatsubaraFunction{1, 1, 2, Float64},
-    λ_D   :: MatsubaraFunction{2, 1, 3, Float64},
-    η_M   :: MatsubaraFunction{1, 1, 2, Float64},
-    λ_M   :: MatsubaraFunction{2, 1, 3, Float64},
+    G     :: MF1,
+    η_D   :: MF1,
+    λ_D   :: MF2,
+    η_M   :: MF1,
+    λ_M   :: MF2,
     U     :: Float64,
     num_v :: Int64
-    )     :: MatsubaraFunction{1, 1, 2, Float64}
+    )     :: MF1
 
     # generate container for Σ
     T = temperature(G)
     g = MatsubaraGrid(T, 4 * num_v, Fermion)
-    Σ = MatsubaraFunction(MatsubaraGrid(T, num_v, Fermion), 1, Float64)
+    Σ = MatsubaraFunction(MatsubaraGrid(T, num_v, Fermion); data_t = Float64)
     L = grids_shape(Σ, 1)
     set!(Σ, 0.0)
 

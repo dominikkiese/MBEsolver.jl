@@ -100,11 +100,6 @@ version = "1.6.0"
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 
-[[deps.FunctionWrappers]]
-git-tree-sha1 = "d62485945ce5ae9c0c48f124a84998d755bae00e"
-uuid = "069b7b12-0de2-55c6-9aab-29f3d0a68a2e"
-version = "1.1.3"
-
 [[deps.HDF5]]
 deps = ["Compat", "HDF5_jll", "Libdl", "Mmap", "Random", "Requires", "UUIDs"]
 git-tree-sha1 = "c73fdc3d9da7700691848b78c61841274076932a"
@@ -223,9 +218,9 @@ deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
 [[deps.MatsubaraFunctions]]
-deps = ["Aqua", "Documenter", "FunctionWrappers", "HDF5", "LinearAlgebra", "MPI", "Polyester", "PrecompileTools", "Printf", "Test"]
-git-tree-sha1 = "252d1ef8eb2ae8aa51151e9202807240203adc5a"
-repo-rev = "main"
+deps = ["Aqua", "Documenter", "HDF5", "LinearAlgebra", "MPI", "Polyester", "PrecompileTools", "Printf", "Test"]
+git-tree-sha1 = "56ce7d99d2388f87b0fac36bf12188064dbbeb01"
+repo-rev = "unstable"
 repo-url = "https://github.com/dominikkiese/MatsubaraFunctions.jl"
 uuid = "3b93aed6-d40a-4520-b131-eee49889bcc0"
 version = "0.1.0"

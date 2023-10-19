@@ -2,92 +2,80 @@
 # note: crossing symmetry in triplet channel yields an additional minus sign
 function s1_M_S(
     w :: NTuple{3, MatsubaraFrequency},
-    x :: Tuple{Int64}
-    ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
+    x :: Tuple{}
+    ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{}, MatsubaraOperation}
 
     return (w[1], w[2], w[1] - w[3]), x, MatsubaraOperation()
 end 
 
 function s1_M_T(
     w :: NTuple{3, MatsubaraFrequency},
-    x :: Tuple{Int64}
-    ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
+    x :: Tuple{}
+    ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{}, MatsubaraOperation}
 
     return (w[1], w[2], w[1] - w[3]), x, MatsubaraOperation(true, false)
 end 
 
 function s2_M_S(
     w :: NTuple{3, MatsubaraFrequency},
-    x :: Tuple{Int64}
-    ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
+    x :: Tuple{}
+    ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{}, MatsubaraOperation}
 
     return (w[1], w[1] - w[2], w[3]), x, MatsubaraOperation()
 end 
 
 function s2_M_T(
     w :: NTuple{3, MatsubaraFrequency},
-    x :: Tuple{Int64}
-    ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
+    x :: Tuple{}
+    ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{}, MatsubaraOperation}
 
     return (w[1], w[1] - w[2], w[3]), x, MatsubaraOperation(true, false)
 end 
 
 function s3_M_p(
     w :: NTuple{3, MatsubaraFrequency},
-    x :: Tuple{Int64}
-    ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
+    x :: Tuple{}
+    ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{}, MatsubaraOperation}
 
     return (-w[1], -w[3], -w[2]), x, MatsubaraOperation(false, true)
 end 
 
 function s4_M_p(
     w :: NTuple{3, MatsubaraFrequency},
-    x :: Tuple{Int64}
-    ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
+    x :: Tuple{}
+    ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{}, MatsubaraOperation}
 
     return (w[1], w[3], w[2]), x, MatsubaraOperation()
 end 
 
-
-
 # symmetries of the multiboson vertex in the particle-hole channel 
 function s1_M_d(
     w :: NTuple{3, MatsubaraFrequency},
-    x :: Tuple{Int64}
-    ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
+    x :: Tuple{}
+    ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{}, MatsubaraOperation}
 
-    return (-w[1], w[1] + w[3], w[1] + w[2]), (x[1],), MatsubaraOperation()
+    return (-w[1], w[1] + w[3], w[1] + w[2]), x, MatsubaraOperation()
 end 
 
 function s2_M_d(
     w :: NTuple{3, MatsubaraFrequency},
-    x :: Tuple{Int64}
-    ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
+    x :: Tuple{}
+    ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{}, MatsubaraOperation}
 
-    return (-w[1], -w[3], -w[2]), (x[1],), MatsubaraOperation(false, true)
+    return (-w[1], -w[3], -w[2]), x, MatsubaraOperation(false, true)
 end 
 
 function s3_M_d(
     w :: NTuple{3, MatsubaraFrequency},
-    x :: Tuple{Int64}
-    ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{Int64}, MatsubaraOperation}
+    x :: Tuple{}
+    ) :: Tuple{NTuple{3, MatsubaraFrequency}, Tuple{}, MatsubaraOperation}
 
-    return (w[1], w[3], w[2]), (x[1],), MatsubaraOperation()
+    return (w[1], w[3], w[2]), x, MatsubaraOperation()
 end 
 
-
-
 # multiboson vertex in singlet channel
-function calc_M!(
-    M   :: MatsubaraFunction{3, 1, 4, Float64},
-    Π   :: MatsubaraFunction{2, 1, 3, Float64}, 
-    T   :: MatsubaraFunction{3, 1, 4, Float64}, 
-    M_S :: MatsubaraFunction{3, 1, 4, Float64}, 
-    SG  :: MatsubaraSymmetryGroup,
-        :: Type{ch_S}
-    )   :: Nothing
+function calc_M!(M :: MF3, Π :: MF2, T :: MF3, M_S :: MF3, SG :: MSG3, :: Type{ch_S}) :: Nothing
 
-    # model the diagram 
     function f(wtpl, xtpl)
 
         w, v, vp  = wtpl 
@@ -116,23 +104,13 @@ function calc_M!(
         return 0.5 * temperature(M) * val
     end 
 
-    # compute multiboson vertex 
-    SG(M, MatsubaraInitFunction{3, 1, Float64}(f); mode = :hybrid)
-
+    SG(M, MIF3(f); mode = :hybrid)
     return nothing 
 end   
 
 # multiboson vertex in triplet channel
-function calc_M!(
-    M   :: MatsubaraFunction{3, 1, 4, Float64},
-    Π   :: MatsubaraFunction{2, 1, 3, Float64}, 
-    T   :: MatsubaraFunction{3, 1, 4, Float64}, 
-    M_T :: MatsubaraFunction{3, 1, 4, Float64}, 
-    SG  :: MatsubaraSymmetryGroup,
-        :: Type{ch_T}
-    )   :: Nothing
+function calc_M!(M :: MF3, Π :: MF2, T :: MF3, M_T :: MF3, SG :: MSG3, :: Type{ch_T}) :: Nothing
 
-    # model the diagram 
     function f(wtpl, xtpl)
 
         w, v, vp  = wtpl 
@@ -162,21 +140,12 @@ function calc_M!(
         return 0.5 * temperature(M) * val
     end 
 
-    # compute multiboson vertex 
-    SG(M, MatsubaraInitFunction{3, 1, Float64}(f); mode = :hybrid)
-
+    SG(M, MIF3(f); mode = :hybrid)
     return nothing 
 end   
 
 # multiboson vertex in density channel
-function calc_M!(
-    M   :: MatsubaraFunction{3, 1, 4, Float64},
-    Π   :: MatsubaraFunction{2, 1, 3, Float64}, 
-    T   :: MatsubaraFunction{3, 1, 4, Float64}, 
-    M_D :: MatsubaraFunction{3, 1, 4, Float64}, 
-    SG  :: MatsubaraSymmetryGroup,
-        :: Type{ch_D}
-    )   :: Nothing
+function calc_M!(M :: MF3, Π :: MF2, T :: MF3, M_D :: MF3, SG :: MSG3, :: Type{ch_D}) :: Nothing
 
     # model the diagram 
     function f(wtpl, xtpl)
@@ -207,21 +176,9 @@ function calc_M!(
         return temperature(M) * val
     end 
 
-    # compute multiboson vertex 
-    SG(M, MatsubaraInitFunction{3, 1, Float64}(f); mode = :hybrid)
-
+    SG(M, MIF3(f); mode = :hybrid)
     return nothing 
 end 
 
 # multiboson vertex in magnetic channel
-function calc_M!(
-    M   :: MatsubaraFunction{3, 1, 4, Float64},
-    Π   :: MatsubaraFunction{2, 1, 3, Float64}, 
-    T   :: MatsubaraFunction{3, 1, 4, Float64}, 
-    M_M :: MatsubaraFunction{3, 1, 4, Float64}, 
-    SG  :: MatsubaraSymmetryGroup,
-        :: Type{ch_M}
-    )   :: Nothing
-
-    return calc_M!(M, Π, T, M_M, SG, ch_D)
-end   
+calc_M!(M :: MF3, Π :: MF2, T :: MF3, M_M :: MF3, SG :: MSG3, :: Type{ch_M}) :: Nothing = calc_M!(M, Π, T, M_M, SG, ch_D)  

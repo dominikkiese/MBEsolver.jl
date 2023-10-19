@@ -16,54 +16,53 @@ mutable struct Solver
     iters :: Int64
 
     # propagators and bubbles
-    const G0   :: MatsubaraFunction{1, 1, 2, Float64}
-    const G    :: MatsubaraFunction{1, 1, 2, Float64}
-    const Σ    :: MatsubaraFunction{1, 1, 2, Float64}
-    const Π_pp :: MatsubaraFunction{2, 1, 3, Float64}
-    const Π_ph :: MatsubaraFunction{2, 1, 3, Float64}
+    const G0   :: MF1
+    const G    :: MF1
+    const Σ    :: MF1
+    const Π_pp :: MF2
+    const Π_ph :: MF2
 
     # polarizations
-    const P_S :: MatsubaraFunction{1, 1, 2, Float64}
-    const P_D :: MatsubaraFunction{1, 1, 2, Float64}
-    const P_M :: MatsubaraFunction{1, 1, 2, Float64}
+    const P_S :: MF1
+    const P_D :: MF1
+    const P_M :: MF1
 
     # screened interactions
-    const η_S :: MatsubaraFunction{1, 1, 2, Float64}
-    const η_D :: MatsubaraFunction{1, 1, 2, Float64}
-    const η_M :: MatsubaraFunction{1, 1, 2, Float64}
+    const η_S :: MF1
+    const η_D :: MF1
+    const η_M :: MF1
 
     # Hedin vertices and their buffers for inplace calculations
-    const λ_S       :: MatsubaraFunction{2, 1, 3, Float64}
-    const λ_D       :: MatsubaraFunction{2, 1, 3, Float64}
-    const λ_M       :: MatsubaraFunction{2, 1, 3, Float64}
-    const λ_S_dummy :: MatsubaraFunction{2, 1, 3, Float64}
-    const λ_D_dummy :: MatsubaraFunction{2, 1, 3, Float64}
-    const λ_M_dummy :: MatsubaraFunction{2, 1, 3, Float64}
+    const λ_S       :: MF2
+    const λ_D       :: MF2
+    const λ_M       :: MF2
+    const λ_S_dummy :: MF2
+    const λ_D_dummy :: MF2
+    const λ_M_dummy :: MF2
 
     # buffers for irreducible vertices
-    const T_S :: MatsubaraFunction{3, 1, 4, Float64}
-    const T_T :: MatsubaraFunction{3, 1, 4, Float64}
-    const T_D :: MatsubaraFunction{3, 1, 4, Float64}
-    const T_M :: MatsubaraFunction{3, 1, 4, Float64}
+    const T_S :: MF3
+    const T_T :: MF3
+    const T_D :: MF3
+    const T_M :: MF3
 
     # multiboson vertices and their buffers for inplace calculations
-    const M_S       :: MatsubaraFunction{3, 1, 4, Float64}
-    const M_T       :: MatsubaraFunction{3, 1, 4, Float64}
-    const M_D       :: MatsubaraFunction{3, 1, 4, Float64}
-    const M_M       :: MatsubaraFunction{3, 1, 4, Float64}
-    const M_S_dummy :: MatsubaraFunction{3, 1, 4, Float64}
-    const M_T_dummy :: MatsubaraFunction{3, 1, 4, Float64}
-    const M_D_dummy :: MatsubaraFunction{3, 1, 4, Float64}
-    const M_M_dummy :: MatsubaraFunction{3, 1, 4, Float64}
+    const M_S       :: MF3
+    const M_T       :: MF3
+    const M_D       :: MF3
+    const M_M       :: MF3
+    const M_S_dummy :: MF3
+    const M_T_dummy :: MF3
+    const M_D_dummy :: MF3
+    const M_M_dummy :: MF3
 
     # vertex symmetry groups
-    SG_λ_p :: MatsubaraSymmetryGroup 
-    SG_λ_d :: MatsubaraSymmetryGroup
-    SG_M_S :: MatsubaraSymmetryGroup 
-    SG_M_T :: MatsubaraSymmetryGroup 
-    SG_M_d :: MatsubaraSymmetryGroup
+    SG_λ_p :: MSG2
+    SG_λ_d :: MSG2
+    SG_M_S :: MSG3
+    SG_M_T :: MSG3 
+    SG_M_d :: MSG3
 
-    # convenience constructor for the Solver (default constructor implicitly deleted)
     function Solver(
         T       :: Float64,
         U       :: Float64,
@@ -95,8 +94,8 @@ mutable struct Solver
 
         # initialization of G0 and G 
         grid_G = MatsubaraGrid(T, num_G, Fermion)
-        G0     = MatsubaraFunction(grid_G, 1, Float64)
-        G      = MatsubaraFunction(grid_G, 1, Float64)
+        G0     = MatsubaraFunction(grid_G; data_t = Float64)
+        G      = MatsubaraFunction(grid_G; data_t = Float64)
 
         for v in grid_G
             G0[v] = 1.0 / (value(v) + V * V / D * atan(D / value(v)))
@@ -106,18 +105,18 @@ mutable struct Solver
         num_Π  = max(num_λ_w + num_λ_v + num_P, 4 * num_P)
         grid_P = MatsubaraGrid(T, num_P, Boson)
         grid_Π = MatsubaraGrid(T, num_Π, Fermion)
-        Π_pp   = MatsubaraFunction((grid_P, grid_Π), 1, Float64)
-        Π_ph   = MatsubaraFunction((grid_P, grid_Π), 1, Float64)
+        Π_pp   = MatsubaraFunction(grid_P, grid_Π; data_t = Float64)
+        Π_ph   = MatsubaraFunction(grid_P, grid_Π; data_t = Float64)
 
         calc_Π!(Π_pp, Π_ph, G0)
 
         # initialization of P, η
-        P_S    = MatsubaraFunction(grid_P, 1, Float64)
-        P_D    = MatsubaraFunction(grid_P, 1, Float64)
-        P_M    = MatsubaraFunction(grid_P, 1, Float64)
-        η_S    = MatsubaraFunction(grid_P, 1, Float64)
-        η_D    = MatsubaraFunction(grid_P, 1, Float64)
-        η_M    = MatsubaraFunction(grid_P, 1, Float64)
+        P_S    = MatsubaraFunction(grid_P; data_t = Float64)
+        P_D    = MatsubaraFunction(grid_P; data_t = Float64)
+        P_M    = MatsubaraFunction(grid_P; data_t = Float64)
+        η_S    = MatsubaraFunction(grid_P; data_t = Float64)
+        η_D    = MatsubaraFunction(grid_P; data_t = Float64)
+        η_M    = MatsubaraFunction(grid_P; data_t = Float64)
 
         set!(P_S, 0.0)
         set!(P_D, 0.0)
@@ -130,12 +129,12 @@ mutable struct Solver
         # initialization of λ 
         grid_λ_w  = MatsubaraGrid(T, num_λ_w, Boson)
         grid_λ_v  = MatsubaraGrid(T, num_λ_v, Fermion)
-        λ_S       = MatsubaraFunction((grid_λ_w, grid_λ_v), 1, Float64)
-        λ_D       = MatsubaraFunction((grid_λ_w, grid_λ_v), 1, Float64)
-        λ_M       = MatsubaraFunction((grid_λ_w, grid_λ_v), 1, Float64)
-        λ_S_dummy = MatsubaraFunction((grid_λ_w, grid_λ_v), 1, Float64)
-        λ_D_dummy = MatsubaraFunction((grid_λ_w, grid_λ_v), 1, Float64)
-        λ_M_dummy = MatsubaraFunction((grid_λ_w, grid_λ_v), 1, Float64)
+        λ_S       = MatsubaraFunction(grid_λ_w, grid_λ_v; data_t = Float64)
+        λ_D       = MatsubaraFunction(grid_λ_w, grid_λ_v; data_t = Float64)
+        λ_M       = MatsubaraFunction(grid_λ_w, grid_λ_v; data_t = Float64)
+        λ_S_dummy = MatsubaraFunction(grid_λ_w, grid_λ_v; data_t = Float64)
+        λ_D_dummy = MatsubaraFunction(grid_λ_w, grid_λ_v; data_t = Float64)
+        λ_M_dummy = MatsubaraFunction(grid_λ_w, grid_λ_v; data_t = Float64)
 
         set!(λ_S, 1.0)  
         set!(λ_D, 1.0) 
@@ -143,10 +142,10 @@ mutable struct Solver
 
         # initialization of T 
         grid_T = MatsubaraGrid(T, num_λ_w + num_λ_v + num_P, Fermion)
-        T_S    = MatsubaraFunction((grid_λ_w, grid_T, grid_λ_v), 1, Float64)
-        T_T    = MatsubaraFunction((grid_λ_w, grid_T, grid_λ_v), 1, Float64)
-        T_D    = MatsubaraFunction((grid_λ_w, grid_λ_v, grid_T), 1, Float64)
-        T_M    = MatsubaraFunction((grid_λ_w, grid_λ_v, grid_T), 1, Float64)
+        T_S    = MatsubaraFunction(grid_λ_w, grid_T, grid_λ_v; data_t = Float64)
+        T_T    = MatsubaraFunction(grid_λ_w, grid_T, grid_λ_v; data_t = Float64)
+        T_D    = MatsubaraFunction(grid_λ_w, grid_λ_v, grid_T; data_t = Float64)
+        T_M    = MatsubaraFunction(grid_λ_w, grid_λ_v, grid_T; data_t = Float64)
 
         set!(T_S, 0.0)
         set!(T_T, 0.0)
@@ -156,14 +155,14 @@ mutable struct Solver
         # initialization of M
         grid_M_w  = MatsubaraGrid(T, num_M_w, Boson)
         grid_M_v  = MatsubaraGrid(T, num_M_v, Fermion)
-        M_S       = MatsubaraFunction((grid_M_w, grid_M_v, grid_M_v), 1, Float64)
-        M_T       = MatsubaraFunction((grid_M_w, grid_M_v, grid_M_v), 1, Float64)
-        M_D       = MatsubaraFunction((grid_M_w, grid_M_v, grid_M_v), 1, Float64)
-        M_M       = MatsubaraFunction((grid_M_w, grid_M_v, grid_M_v), 1, Float64)
-        M_S_dummy = MatsubaraFunction((grid_M_w, grid_M_v, grid_M_v), 1, Float64)
-        M_T_dummy = MatsubaraFunction((grid_M_w, grid_M_v, grid_M_v), 1, Float64)
-        M_D_dummy = MatsubaraFunction((grid_M_w, grid_M_v, grid_M_v), 1, Float64)
-        M_M_dummy = MatsubaraFunction((grid_M_w, grid_M_v, grid_M_v), 1, Float64)
+        M_S       = MatsubaraFunction(grid_M_w, grid_M_v, grid_M_v; data_t = Float64)
+        M_T       = MatsubaraFunction(grid_M_w, grid_M_v, grid_M_v; data_t = Float64)
+        M_D       = MatsubaraFunction(grid_M_w, grid_M_v, grid_M_v; data_t = Float64)
+        M_M       = MatsubaraFunction(grid_M_w, grid_M_v, grid_M_v; data_t = Float64)
+        M_S_dummy = MatsubaraFunction(grid_M_w, grid_M_v, grid_M_v; data_t = Float64)
+        M_T_dummy = MatsubaraFunction(grid_M_w, grid_M_v, grid_M_v; data_t = Float64)
+        M_D_dummy = MatsubaraFunction(grid_M_w, grid_M_v, grid_M_v; data_t = Float64)
+        M_M_dummy = MatsubaraFunction(grid_M_w, grid_M_v, grid_M_v; data_t = Float64)
 
         set!(M_S, 0.0) 
         set!(M_T, 0.0) 
@@ -172,7 +171,7 @@ mutable struct Solver
 
         # initialization of Σ (using 2nd order PBT)
         grid_Σ = MatsubaraGrid(T, num_Σ, Fermion)
-        Σ      = MatsubaraFunction(grid_Σ, 1, Float64)
+        Σ      = MatsubaraFunction(grid_Σ; data_t = Float64)
 
         P_D0 = calc_P(λ_D, Π_ph, num_P, ch_D); η_D0 = calc_η(P_D0, η_D, +U)
         P_M0 = calc_P(λ_M, Π_ph, num_P, ch_M); η_M0 = calc_η(P_M0, η_M, -U)
@@ -200,11 +199,11 @@ end
 # symmetry group initialization from list of symmetries 
 function init_sym_grp!(
     S       :: Solver,
-    sym_λ_p :: Vector{MatsubaraSymmetry{2, 1}},
-    sym_λ_d :: Vector{MatsubaraSymmetry{2, 1}},
-    sym_M_S :: Vector{MatsubaraSymmetry{3, 1}},
-    sym_M_T :: Vector{MatsubaraSymmetry{3, 1}},
-    sym_M_d :: Vector{MatsubaraSymmetry{3, 1}}
+    sym_λ_p :: Vector{MS2},
+    sym_λ_d :: Vector{MS2},
+    sym_M_S :: Vector{MS3},
+    sym_M_T :: Vector{MS3},
+    sym_M_d :: Vector{MS3}
     )       :: Nothing 
 
     S.SG_λ_p = MatsubaraSymmetryGroup(sym_λ_p, S.λ_S)
@@ -219,11 +218,11 @@ end
 # symmetry group initialization from precomputed symmetry groups 
 function init_sym_grp!(
     S      :: Solver,
-    SG_λ_p :: MatsubaraSymmetryGroup,
-    SG_λ_d :: MatsubaraSymmetryGroup,
-    SG_M_S :: MatsubaraSymmetryGroup,
-    SG_M_T :: MatsubaraSymmetryGroup,
-    SG_M_d :: MatsubaraSymmetryGroup
+    SG_λ_p :: MSG2,
+    SG_λ_d :: MSG2,
+    SG_M_S :: MSG3,
+    SG_M_T :: MSG3,
+    SG_M_d :: MSG3
     )      :: Nothing 
 
     @assert length(S.λ_S) == sum(length.(SG_λ_p.classes)) "MatsubaraSymmetryGroup incompatible with MatsubaraFunction"

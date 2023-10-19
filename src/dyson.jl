@@ -1,8 +1,5 @@
 # fermionic Dyson equation for G
-function calc_G(
-    G0 :: MatsubaraFunction{1, 1, 2, Float64},
-    Σ  :: MatsubaraFunction{1, 1, 2, Float64}
-    )  :: MatsubaraFunction{1, 1, 2, Float64}
+function calc_G(G0 :: MF1, Σ :: MF1) :: MF1
 
     G = copy(G0)
 
@@ -14,12 +11,8 @@ function calc_G(
     return G
 end
 
-# bosonic Dyson equation for η
-function calc_η(
-    P   :: MatsubaraFunction{1, 1, 2, Float64},
-    η   :: MatsubaraFunction{1, 1, 2, Float64},
-    val :: Float64
-    )   :: MatsubaraFunction{1, 1, 2, Float64}
+# bosonic Dyson equation for η (iterative form empirically more stable)
+function calc_η(P :: MF1, η :: MF1, val :: Float64) :: MF1
 
     ηp = copy(P)
 
@@ -31,11 +24,7 @@ function calc_η(
 end
 
 # bubble functions Π
-function calc_Π!(
-    Π_pp :: MatsubaraFunction{2, 1, 3, Float64},
-    Π_ph :: MatsubaraFunction{2, 1, 3, Float64},
-    G    :: MatsubaraFunction{1, 1, 2, Float64}
-    )    :: Nothing 
+function calc_Π!(Π_pp :: MF2, Π_ph :: MF2, G :: MF1) :: Nothing 
     
     L = grids_shape(Π_pp, 2)
 
