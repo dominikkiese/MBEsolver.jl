@@ -1,4 +1,5 @@
 [![CI](https://github.com/dominikkiese/MBEsolver.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/dominikkiese/MBEsolver.jl/actions/workflows/CI.yml)
+[![DOI](https://zenodo.org/badge/662306985.svg)](https://zenodo.org/doi/10.5281/zenodo.10048245)
 
 # MBEsolver.jl
 
