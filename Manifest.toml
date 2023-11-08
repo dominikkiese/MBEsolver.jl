@@ -253,7 +253,7 @@ uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
 [[deps.MatsubaraFunctions]]
 deps = ["Aqua", "Documenter", "HDF5", "LinearAlgebra", "MPI", "Polyester", "PrecompileTools", "Printf", "Test"]
-git-tree-sha1 = "3cc0ba78118574f19d522f75971acf1e9deb1527"
+git-tree-sha1 = "953cbc0b47dfa97db5f7c8007947f2f1f2d1a9cf"
 repo-rev = "unstable"
 repo-url = "https://github.com/dominikkiese/MatsubaraFunctions.jl"
 uuid = "3b93aed6-d40a-4520-b131-eee49889bcc0"
