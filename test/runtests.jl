@@ -3,7 +3,9 @@ using MatsubaraFunctions
 using HDF5
 using MPI
 using Test
+
 MPI.Init()
+MatsubaraFunctions.DEBUG() = true # enable all checks for testing
 
 @testset "RefNoSym" begin
     # simulation parameters
@@ -23,7 +25,7 @@ MPI.Init()
     α       = 0.5
     atol    = 1e-8
     rtol    = 1e-8
-    iters   = 25
+    iters   = 50
 
     # build the solver 
     S = MBEsolver.Solver(T, U, V, D, num_G, num_Σ, num_P, num_λ_w, num_λ_v, num_M_w, num_M_v; m, p, α, atol, rtol, iters)
@@ -73,7 +75,7 @@ end
     α       = 0.5
     atol    = 1e-8
     rtol    = 1e-8
-    iters   = 25
+    iters   = 50
 
     # build the solver 
     S = MBEsolver.Solver(T, U, V, D, num_G, num_Σ, num_P, num_λ_w, num_λ_v, num_M_w, num_M_v; m, p, α, atol, rtol, iters)

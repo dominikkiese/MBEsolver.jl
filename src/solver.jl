@@ -240,12 +240,12 @@ function init_sym_grp!(
     return nothing 
 end
 
-# interface with NLsolve
 function Base.:length(
     S :: Solver
     ) :: Int64 
 
-    return length(S.Σ) + 3 * length(S.η_S) + 3 * length(S.λ_S) + 4 * length(S.M_S)
+    return length(S.Σ) + 3 * length(S.P_S) + length(S.SG_λ_p.classes) + 2 * length(S.SG_λ_d.classes) +
+        length(S.SG_M_S.classes) + length(S.SG_M_T.classes) + 2 * length(S.SG_M_d.classes)
 end
 
 function MatsubaraFunctions.:flatten!(
@@ -256,22 +256,45 @@ function MatsubaraFunctions.:flatten!(
     @assert length(S) == length(x) "Length of flattened solver and input vector do not match"
 
     offset = 0
-    L_Σ    = length(S.Σ)
-    L_η    = length(S.η_S)
-    L_λ    = length(S.λ_S)
-    L_M    = length(S.M_S)
+    flatten!(S.Σ, view(x, offset + 1 : offset + length(S.Σ)))
+    offset += length(S.Σ)
 
-    flatten!(S.Σ, view(x, offset + 1 : offset + L_Σ)); offset += L_Σ 
-    flatten!(S.η_S, view(x, offset + 1 : offset + L_η)); offset += L_η
-    flatten!(S.η_D, view(x, offset + 1 : offset + L_η)); offset += L_η
-    flatten!(S.η_M, view(x, offset + 1 : offset + L_η)); offset += L_η
-    flatten!(S.λ_S, view(x, offset + 1 : offset + L_λ)); offset += L_λ
-    flatten!(S.λ_D, view(x, offset + 1 : offset + L_λ)); offset += L_λ
-    flatten!(S.λ_M, view(x, offset + 1 : offset + L_λ)); offset += L_λ
-    flatten!(S.M_S, view(x, offset + 1 : offset + L_M)); offset += L_M
-    flatten!(S.M_T, view(x, offset + 1 : offset + L_M)); offset += L_M
-    flatten!(S.M_D, view(x, offset + 1 : offset + L_M)); offset += L_M
-    flatten!(S.M_M, view(x, offset + 1 : offset + L_M)); offset += L_M
+    flatten!(S.P_S, view(x, offset + 1 : offset + length(S.P_S)))
+    offset += length(S.P_S)
+
+    flatten!(S.P_D, view(x, offset + 1 : offset + length(S.P_D)))
+    offset += length(S.P_D)
+
+    flatten!(S.P_M, view(x, offset + 1 : offset + length(S.P_M)))
+    offset += length(S.P_M)
+
+    λ_S_vec = get_reduced(S.SG_λ_p, S.λ_S)
+    x[offset + 1 : offset + length(λ_S_vec)] .= λ_S_vec
+    offset += length(λ_S_vec)
+
+    λ_D_vec = get_reduced(S.SG_λ_d, S.λ_D)
+    x[offset + 1 : offset + length(λ_D_vec)] .= λ_D_vec
+    offset += length(λ_D_vec)
+
+    λ_M_vec = get_reduced(S.SG_λ_d, S.λ_M)
+    x[offset + 1 : offset + length(λ_M_vec)] .= λ_M_vec
+    offset += length(λ_M_vec)
+
+    M_S_vec = get_reduced(S.SG_M_S, S.M_S)
+    x[offset + 1 : offset + length(M_S_vec)] .= M_S_vec
+    offset += length(M_S_vec)
+
+    M_T_vec = get_reduced(S.SG_M_T, S.M_T)
+    x[offset + 1 : offset + length(M_T_vec)] .= M_T_vec
+    offset += length(M_T_vec)
+
+    M_D_vec = get_reduced(S.SG_M_d, S.M_D)
+    x[offset + 1 : offset + length(M_D_vec)] .= M_D_vec
+    offset += length(M_D_vec)
+
+    M_M_vec = get_reduced(S.SG_M_d, S.M_M)
+    x[offset + 1 : offset + length(M_M_vec)] .= M_M_vec
+    offset += length(M_M_vec)
 
     @assert length(S) == offset "Length of flattened solver and final offset do not match"
     return nothing 
@@ -295,22 +318,38 @@ function MatsubaraFunctions.:unflatten!(
     @assert length(S) == length(x) "Length of flattened solver and input vector do not match"
 
     offset = 0
-    L_Σ    = length(S.Σ)
-    L_η    = length(S.η_S)
-    L_λ    = length(S.λ_S)
-    L_M    = length(S.M_S)
+    unflatten!(S.Σ, view(x, offset + 1 : offset + length(S.Σ)))
+    offset += length(S.Σ)
 
-    unflatten!(S.Σ, view(x, offset + 1 : offset + L_Σ)); offset += L_Σ 
-    unflatten!(S.η_S, view(x, offset + 1 : offset + L_η)); offset += L_η
-    unflatten!(S.η_D, view(x, offset + 1 : offset + L_η)); offset += L_η
-    unflatten!(S.η_M, view(x, offset + 1 : offset + L_η)); offset += L_η
-    unflatten!(S.λ_S, view(x, offset + 1 : offset + L_λ)); offset += L_λ
-    unflatten!(S.λ_D, view(x, offset + 1 : offset + L_λ)); offset += L_λ
-    unflatten!(S.λ_M, view(x, offset + 1 : offset + L_λ)); offset += L_λ
-    unflatten!(S.M_S, view(x, offset + 1 : offset + L_M)); offset += L_M
-    unflatten!(S.M_T, view(x, offset + 1 : offset + L_M)); offset += L_M
-    unflatten!(S.M_D, view(x, offset + 1 : offset + L_M)); offset += L_M
-    unflatten!(S.M_M, view(x, offset + 1 : offset + L_M)); offset += L_M
+    unflatten!(S.P_S, view(x, offset + 1 : offset + length(S.P_S)))
+    offset += length(S.P_S)
+
+    unflatten!(S.P_D, view(x, offset + 1 : offset + length(S.P_D)))
+    offset += length(S.P_D)
+
+    unflatten!(S.P_M, view(x, offset + 1 : offset + length(S.P_M)))
+    offset += length(S.P_M)
+
+    init_from_reduced!(S.SG_λ_p, S.λ_S, view(x, offset + 1 : offset + length(S.SG_λ_p.classes)))
+    offset += length(S.SG_λ_p.classes)
+
+    init_from_reduced!(S.SG_λ_d, S.λ_D, view(x, offset + 1 : offset + length(S.SG_λ_d.classes)))
+    offset += length(S.SG_λ_d.classes)
+
+    init_from_reduced!(S.SG_λ_d, S.λ_M, view(x, offset + 1 : offset + length(S.SG_λ_d.classes)))
+    offset += length(S.SG_λ_d.classes)
+
+    init_from_reduced!(S.SG_M_S, S.M_S, view(x, offset + 1 : offset + length(S.SG_M_S.classes)))
+    offset += length(S.SG_M_S.classes)
+
+    init_from_reduced!(S.SG_M_T, S.M_T, view(x, offset + 1 : offset + length(S.SG_M_T.classes)))
+    offset += length(S.SG_M_T.classes)
+
+    init_from_reduced!(S.SG_M_d, S.M_D, view(x, offset + 1 : offset + length(S.SG_M_d.classes)))
+    offset += length(S.SG_M_d.classes)
+
+    init_from_reduced!(S.SG_M_d, S.M_M, view(x, offset + 1 : offset + length(S.SG_M_d.classes)))
+    offset += length(S.SG_M_d.classes)
 
     @assert length(S) == offset "Length of flattened solver and final offset do not match"
     return nothing 
@@ -332,6 +371,14 @@ function fixed_point!(
     # update Π
     calc_Π!(S.Π_pp, S.Π_ph, S.G)
 
+    # calculate P
+    set!(S.P_S, calc_P(S.λ_S, S.Π_pp, S.num_P, ch_S))
+    set!(S.P_D, calc_P(S.λ_D, S.Π_ph, S.num_P, ch_D))
+    set!(S.P_M, calc_P(S.λ_M, S.Π_ph, S.num_P, ch_M))
+
+    # calculate Σ
+    set!(S.Σ, calc_Σ(S.G, S.η_D, S.λ_D, S.η_M, S.λ_M, S.U, S.num_Σ))
+
     # calculate T
     calc_T_pp!(S.T_S, S.T_T, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U)
     calc_T_ph!(S.T_D, S.T_M, S.η_S, S.λ_S, S.η_D, S.λ_D, S.η_M, S.λ_M, S.M_S, S.M_T, S.M_D, S.M_M, S.U)
@@ -347,12 +394,7 @@ function fixed_point!(
     calc_M!(S.M_D_dummy, S.Π_ph, S.T_D, S.M_D, S.SG_M_d, ch_D)
     calc_M!(S.M_M_dummy, S.Π_ph, S.T_M, S.M_M, S.SG_M_d, ch_M)
 
-    # update P
-    set!(S.P_S, calc_P(S.λ_S, S.Π_pp, S.num_P, ch_S))
-    set!(S.P_D, calc_P(S.λ_D, S.Π_ph, S.num_P, ch_D))
-    set!(S.P_M, calc_P(S.λ_M, S.Π_ph, S.num_P, ch_M))
-    
-    # calculate η
+    # update η
     set!(S.η_S, calc_η(S.P_S, S.η_S, +2.0 * S.U))
     set!(S.η_D, calc_η(S.P_D, S.η_D, +1.0 * S.U))
     set!(S.η_M, calc_η(S.P_M, S.η_M, -1.0 * S.U))
@@ -368,9 +410,6 @@ function fixed_point!(
     set!(S.M_D, S.M_D_dummy)
     set!(S.M_M, S.M_M_dummy)
 
-    # calculate Σ
-    set!(S.Σ, calc_Σ(S.G, S.η_D, S.λ_D, S.η_M, S.λ_M, S.U, S.num_Σ))
-
     # compute residue
     flatten!(S, F)
     F .-= x 
@@ -384,8 +423,14 @@ function solve!(
     S :: Solver
     ) :: Nothing 
 
-    mpi_println("Running MBE solver ...")
-    mpi_println("")
+    mpi_println("
+             __  __ ____  ______           _                   
+            |  \\/  |  _ \\|  ____|         | |                  
+            | \\  / | |_) | |__   ___  ___ | |_   _____ _ __    
+            | |\\/| |  _ <|  __| / __|/ _ \\| \\ \\ / / _ \\ '__|   
+            | |  | | |_) | |____\\__ \\ (_) | |\\ V /  __/ |      
+            |_|  |_|____/|______|___/\\___/|_| \\_/ \\___|_|
+    ")
 
     ti = time()
     PP = PeriodicPulay(flatten(S); m = S.m)
