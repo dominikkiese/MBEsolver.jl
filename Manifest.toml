@@ -252,9 +252,9 @@ deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
 [[deps.MatsubaraFunctions]]
-deps = ["Aqua", "Documenter", "HDF5", "LinearAlgebra", "MPI", "Polyester", "PrecompileTools", "Printf", "Test"]
-git-tree-sha1 = "953cbc0b47dfa97db5f7c8007947f2f1f2d1a9cf"
-repo-rev = "unstable"
+deps = ["Aqua", "Documenter", "HDF5", "LinearAlgebra", "MPI", "OffsetArrays", "Polyester", "PrecompileTools", "Printf", "Test"]
+git-tree-sha1 = "6be4e04e453bc0ade93a9ef7498bd6efecb80de2"
+repo-rev = "simpler_arrays"
 repo-url = "https://github.com/dominikkiese/MatsubaraFunctions.jl"
 uuid = "3b93aed6-d40a-4520-b131-eee49889bcc0"
 version = "0.1.0"
@@ -281,6 +281,12 @@ version = "2022.10.11"
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 version = "1.2.0"
 
+[[deps.OffsetArrays]]
+deps = ["Adapt"]
+git-tree-sha1 = "2ac17d29c523ce1cd38e27785a7d23024853a4bb"
+uuid = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
+version = "1.12.10"
+
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
@@ -300,9 +306,9 @@ version = "3.0.11+0"
 
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
-git-tree-sha1 = "716e24b21538abc91f6205fd1d8363f39b442851"
+git-tree-sha1 = "a935806434c9d4c506ba941871b327b96d41f2bf"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
-version = "2.7.2"
+version = "2.8.0"
 
 [[deps.Pkg]]
 deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]

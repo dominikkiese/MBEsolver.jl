@@ -39,8 +39,9 @@ function calc_λ!(λ :: MF2, Π :: MF2, T :: MF3, SG :: MSG2, :: Type{ch_S}) :: 
 
         w, v    = wtpl
         val     = 0.0
-        v1, v2  = grids(Π, 2)(grids(T, 2)[1]), grids(Π, 2)(grids(T, 2)[end])
-        Π_slice = view(Π, w, v1 : v2)
+        vl_T = firstindex(grids(T, 2))
+        vr_T =  lastindex(grids(T, 2))
+        Π_slice = view(Π, w, Base.IdentityUnitRange(vl_T : vr_T))
         T_slice = view(T, w, :, v)
 
         for i in eachindex(Π_slice)
@@ -61,8 +62,9 @@ function calc_λ!(λ :: MF2, Π :: MF2, T :: MF3, SG :: MSG2, :: Type{ch_D}) :: 
 
         w, v    = wtpl
         val     = 0.0
-        v1, v2  = grids(Π, 2)(grids(T, 3)[1]), grids(Π, 2)(grids(T, 3)[end])
-        Π_slice = view(Π, w, v1 : v2)
+        vl_T = firstindex(grids(T, 3))
+        vr_T =  lastindex(grids(T, 3))
+        Π_slice = view(Π, w, Base.IdentityUnitRange(vl_T : vr_T))
         T_slice = view(T, w, v, :)
 
         for i in eachindex(Π_slice)
