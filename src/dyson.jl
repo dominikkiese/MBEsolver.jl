@@ -27,10 +27,10 @@ end
 function calc_Π!(Π_pp :: MF2, Π_ph :: MF2, G :: MF1) :: Nothing 
     
     v_grid = grids(Π_pp, 2)
-    vl_Π = firstindex(v_grid)
-    vr_Π =  lastindex(v_grid)
+    vl_Π   = firstindex(v_grid)
+    vr_Π   = lastindex(v_grid)
 
-    @batch per = thread for iv in vl_Π:vr_Π
+    @batch per = thread for iv in vl_Π : vr_Π
         v = v_grid[iv]
         g = G(v)
         

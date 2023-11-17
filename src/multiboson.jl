@@ -80,12 +80,10 @@ function calc_M!(M :: MF3, Π :: MF2, T :: MF3, M_S :: MF3, SG :: MSG3, :: Type{
 
         w, v, vp  = wtpl 
         val       = 0.0
-
-        vl_T = firstindex(grids(T, 2))
-        vr_T =  lastindex(grids(T, 2))
-        vl_M = firstindex(grids(M, 2))
-        vr_M =  lastindex(grids(M, 2))
-        
+        vl_T      = firstindex(grids(T, 2))
+        vr_T      = lastindex(grids(T, 2))
+        vl_M      = firstindex(grids(M, 2))
+        vr_M      = lastindex(grids(M, 2))
         Π_slice   = view(Π, w, Base.IdentityUnitRange(vl_T : vr_T))
         M_S_slice = view(M_S, w, :, vp)
         T_L_slice = view(T, w, :, vp) 
@@ -117,11 +115,10 @@ function calc_M!(M :: MF3, Π :: MF2, T :: MF3, M_T :: MF3, SG :: MSG3, :: Type{
 
         w, v, vp  = wtpl 
         val       = 0.0
-        vl_T = firstindex(grids(T, 2))
-        vr_T =  lastindex(grids(T, 2))
-        vl_M = firstindex(grids(M, 2))
-        vr_M =  lastindex(grids(M, 2))
-        
+        vl_T      = firstindex(grids(T, 2))
+        vr_T      = lastindex(grids(T, 2))
+        vl_M      = firstindex(grids(M, 2))
+        vr_M      = lastindex(grids(M, 2))
         Π_slice   = view(Π, w, Base.IdentityUnitRange(vl_T : vr_T))
         M_T_slice = view(M_T, w, :, vp)
         T_L_slice = view(T, w, :, vp) 
@@ -154,17 +151,14 @@ function calc_M!(M :: MF3, Π :: MF2, T :: MF3, M_D :: MF3, SG :: MSG3, :: Type{
 
         w, v, vp  = wtpl 
         val       = 0.0
-
-        vl_T = firstindex(grids(T, 3))
-        vr_T =  lastindex(grids(T, 3))
-        vl_M = firstindex(grids(M, 3))
-        vr_M =  lastindex(grids(M, 3))
-
+        vl_T      = firstindex(grids(T, 3))
+        vr_T      = lastindex(grids(T, 3))
+        vl_M      = firstindex(grids(M, 3))
+        vr_M      = lastindex(grids(M, 3))
         Π_slice   = view(Π, w, Base.IdentityUnitRange(vl_T : vr_T))
         M_D_slice = view(M_D, w, v, :)
         T_L_slice = view(T, w, v, :)
         T_R_slice = view(T, w, vp, :)
-
 
         for i in vl_T : vl_M - 1
             val -= (T_L_slice[i] - M_D_slice[vl_M]) * Π_slice[i] * T_R_slice[i]
