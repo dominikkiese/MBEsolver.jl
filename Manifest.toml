@@ -253,7 +253,7 @@ uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
 [[deps.MatsubaraFunctions]]
 deps = ["Aqua", "Documenter", "HDF5", "LinearAlgebra", "MPI", "OffsetArrays", "Polyester", "PrecompileTools", "Printf", "Test"]
-git-tree-sha1 = "920271dfaa4062fd5b8b06e569521db5d1b946f5"
+git-tree-sha1 = "cdee6ea26e136048873a8513b9d51219795986d5"
 repo-rev = "simpler_arrays"
 repo-url = "https://github.com/dominikkiese/MatsubaraFunctions.jl"
 uuid = "3b93aed6-d40a-4520-b131-eee49889bcc0"
