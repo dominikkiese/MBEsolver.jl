@@ -39,7 +39,7 @@ function calc_λ!(λ :: MF2, Π :: MF2, T :: MF3, SG :: MSG2, :: Type{ch_S}) :: 
 
         w, v    = wtpl
         g_T     = grids(T, 2)
-        Π_slice = view(Π, w, Base.IdentityUnitRange(firstindex(g_T) : lastindex(g_T)))
+        Π_slice = view(Π, w, Base.IdentityUnitRange(axes(g_T)))
         T_slice = view(T, w, :, v)
 
         return 1.0 + 0.5 * temperature(λ) * mapreduce(*, +, T_slice, Π_slice)
@@ -56,7 +56,7 @@ function calc_λ!(λ :: MF2, Π :: MF2, T :: MF3, SG :: MSG2, :: Type{ch_D}) :: 
 
         w, v    = wtpl
         g_T     = grids(T, 3)
-        Π_slice = view(Π, w, Base.IdentityUnitRange(firstindex(g_T) : lastindex(g_T)))
+        Π_slice = view(Π, w, Base.IdentityUnitRange(axes(g_T)))
         T_slice = view(T, w, v, :)
 
         return 1.0 - temperature(λ) * mapreduce(*, +, T_slice, Π_slice)

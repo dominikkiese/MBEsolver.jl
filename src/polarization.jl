@@ -11,10 +11,8 @@ function calc_P(λ :: MF2, Π :: MF2, num_w :: Int64, :: Type{ch_S}) :: MF1
     vr_Π   = lastindex(grids(Π, 2))
     vl_λ   = firstindex(grids(λ, 2))
     vr_λ   = lastindex(grids(λ, 2))
-    wl     = firstindex(w_grid)
-    wr     = lastindex(w_grid)
  
-    @batch per = thread for iw in wl : wr
+    @batch per = thread for iw in axes(w_grid)
         w         = w_grid[iw]
         w_λ       = grids(λ, 1)[MatsubaraFunctions.grid_index_extrp(w, grids(λ, 1))]
         Π_slice_l = view(Π, w, vl_Π : vl_λ - 1)
@@ -41,10 +39,8 @@ function calc_P(λ :: MF2, Π :: MF2, num_w :: Int64, :: Type{ch_D}) :: MF1
     vr_Π   = lastindex(grids(Π, 2))
     vl_λ   = firstindex(grids(λ, 2))
     vr_λ   = lastindex(grids(λ, 2))
-    wl     = firstindex(w_grid)
-    wr     = lastindex(w_grid)
 
-    @batch per = thread for iw in wl : wr
+    @batch per = thread for iw in axes(w_grid)
         w         = w_grid[iw]
         w_λ       = grids(λ, 1)[MatsubaraFunctions.grid_index_extrp(w, grids(λ, 1))]
         Π_slice_l = view(Π, w, vl_Π : vl_λ - 1)

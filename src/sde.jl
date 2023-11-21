@@ -16,10 +16,8 @@ function calc_Σ(
     set!(Σ, 0.0)
 
     v_grid = grids(Σ, 1)
-    vl     = firstindex(v_grid)
-    vr     = lastindex(v_grid)
 
-    @batch per = thread for iv in vl : vr
+    @batch per = thread for iv in axes(v_grid)
         v = v_grid[iv]
 
         for vp in g
