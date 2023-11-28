@@ -26,10 +26,12 @@ end
 # bubble functions Π
 function calc_Π!(Π_pp :: MF2, Π_ph :: MF2, G :: MF1) :: Nothing 
     
-    L = grids_shape(Π_pp, 2)
+    v_grid = grids(Π_pp, 2)
+    vl_Π   = firstindex(v_grid)
+    vr_Π   = lastindex(v_grid)
 
-    @batch per = thread for v_idx in 1 : L
-        v = grids(Π_pp, 2)[v_idx]
+    @batch per = thread for iv in vl_Π : vr_Π
+        v = v_grid[iv]
         g = G(v)
         
         for w in grids(Π_pp, 1)

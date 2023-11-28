@@ -38,16 +38,11 @@ function calc_λ!(λ :: MF2, Π :: MF2, T :: MF3, SG :: MSG2, :: Type{ch_S}) :: 
     function f(wtpl, xtpl)
 
         w, v    = wtpl
-        val     = 0.0
-        v1, v2  = grids(Π, 2)(grids(T, 2)[1]), grids(Π, 2)(grids(T, 2)[end])
-        Π_slice = view(Π, w, v1 : v2)
+        g_T     = grids(T, 2)
+        Π_slice = view(Π, w, Base.IdentityUnitRange(firstindex(g_T) : lastindex(g_T)))
         T_slice = view(T, w, :, v)
 
-        for i in eachindex(Π_slice)
-            val += T_slice[i] * Π_slice[i]
-        end
-
-        return 1.0 + 0.5 * temperature(λ) * val
+        return 1.0 + 0.5 * temperature(λ) * mapreduce(*, +, T_slice, Π_slice)
     end
 
     SG(λ, MIF2(f); mode = :threads)
@@ -60,16 +55,11 @@ function calc_λ!(λ :: MF2, Π :: MF2, T :: MF3, SG :: MSG2, :: Type{ch_D}) :: 
     function f(wtpl, xtpl)
 
         w, v    = wtpl
-        val     = 0.0
-        v1, v2  = grids(Π, 2)(grids(T, 3)[1]), grids(Π, 2)(grids(T, 3)[end])
-        Π_slice = view(Π, w, v1 : v2)
+        g_T     = grids(T, 3)
+        Π_slice = view(Π, w, Base.IdentityUnitRange(firstindex(g_T) : lastindex(g_T)))
         T_slice = view(T, w, v, :)
 
-        for i in eachindex(Π_slice)
-            val -= T_slice[i] * Π_slice[i]
-        end
-
-        return 1.0 + temperature(λ) * val
+        return 1.0 - temperature(λ) * mapreduce(*, +, T_slice, Π_slice)
     end
 
     SG(λ, MIF2(f); mode = :threads)

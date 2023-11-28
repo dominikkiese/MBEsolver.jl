@@ -13,11 +13,14 @@ function calc_Σ(
     T = temperature(G)
     g = MatsubaraGrid(T, 4 * num_v, Fermion)
     Σ = MatsubaraFunction(MatsubaraGrid(T, num_v, Fermion); data_t = Float64)
-    L = grids_shape(Σ, 1)
     set!(Σ, 0.0)
 
-    @batch per = thread for v_idx in 1 : L
-        v = grids(Σ, 1)[v_idx]
+    v_grid = grids(Σ, 1)
+    vl     = firstindex(v_grid)
+    vr     = lastindex(v_grid)
+
+    @batch per = thread for iv in vl : vr
+        v = v_grid[iv]
 
         for vp in g
             Σ[v] -= (0.25 * η_D(v - vp; extrp = +U) * λ_D(v - vp, vp) + 

@@ -2,37 +2,26 @@
 function calc_P(λ :: MF2, Π :: MF2, num_w :: Int64, :: Type{ch_S}) :: MF1
 
     # generate container for P
-    T  = temperature(Π)
-    P  = MatsubaraFunction(MatsubaraGrid(T, num_w, Boson); data_t = Float64)
-    L  = grids_shape(P, 1)
-    vl = grids(Π, 2)(grids(λ, 2)[1])
-    vr = grids(Π, 2)(grids(λ, 2)[end])
+    T = temperature(Π)
+    P = MatsubaraFunction(MatsubaraGrid(T, num_w, Boson); data_t = Float64)
     set!(P, 0.0)
+
+    w_grid = grids(P, 1)
+    vl_Π   = firstindex(grids(Π, 2))
+    vr_Π   = lastindex(grids(Π, 2))
+    vl_λ   = firstindex(grids(λ, 2))
+    vr_λ   = lastindex(grids(λ, 2))
+    wl     = firstindex(w_grid)
+    wr     = lastindex(w_grid)
  
-    @batch per = thread for w_idx in 1 : L
-        w       = grids(P, 1)[w_idx]
-        w_λ     = grids(λ, 1)[MatsubaraFunctions.grid_index_extrp(w, grids(λ, 1))]
-        Π_slice = view(Π, w, :)
-        λ_slice = view(λ, w_λ, :)
-        val1    = 0.0
-        val2    = 0.0
-        val3    = 0.0
-
-        for i in 1 : vl - 1
-            val1 += Π_slice[i]
-        end
-
-        for i in vl : vr
-            val2 += Π_slice[i] * λ_slice[i - vl + 1]
-        end
-
-        for i in vr + 1 : length(Π_slice)
-            val3 += Π_slice[i]
-        end
-
-        val1 *= λ_slice[1]
-        val3 *= λ_slice[end]
-        P[w]  = val1 + val2 + val3
+    @batch per = thread for iw in wl : wr
+        w         = w_grid[iw]
+        w_λ       = grids(λ, 1)[MatsubaraFunctions.grid_index_extrp(w, grids(λ, 1))]
+        Π_slice_l = view(Π, w, vl_Π : vl_λ - 1)
+        Π_slice_c = view(Π, w, vl_λ : vr_λ)
+        Π_slice_r = view(Π, w, vr_λ + 1 : vr_Π)
+        λ_slice   = view(λ, w_λ, vl_λ : vr_λ)
+        P[w]      = sum(Π_slice_l) * λ_slice[1] + mapreduce(*, +, Π_slice_c, λ_slice) + sum(Π_slice_r) * λ_slice[end]
     end 
 
     mult!(P, 0.5 * T)
@@ -43,40 +32,29 @@ end
 function calc_P(λ :: MF2, Π :: MF2, num_w :: Int64, :: Type{ch_D}) :: MF1
 
     # generate container for P
-    T  = temperature(Π)
-    P  = MatsubaraFunction(MatsubaraGrid(T, num_w, Boson); data_t = Float64)
-    L  = grids_shape(P, 1)
-    vl = grids(Π, 2)(grids(λ, 2)[1])
-    vr = grids(Π, 2)(grids(λ, 2)[end])
+    T = temperature(Π)
+    P = MatsubaraFunction(MatsubaraGrid(T, num_w, Boson); data_t = Float64)
     set!(P, 0.0)
 
-    @batch per = thread for w_idx in 1 : L
-        w       = grids(P, 1)[w_idx]
-        w_λ     = grids(λ, 1)[MatsubaraFunctions.grid_index_extrp(w, grids(λ, 1))]
-        Π_slice = view(Π, w, :)
-        λ_slice = view(λ, w_λ, :)
-        val1    = 0.0
-        val2    = 0.0
-        val3    = 0.0
+    w_grid = grids(P, 1)
+    vl_Π   = firstindex(grids(Π, 2))
+    vr_Π   = lastindex(grids(Π, 2))
+    vl_λ   = firstindex(grids(λ, 2))
+    vr_λ   = lastindex(grids(λ, 2))
+    wl     = firstindex(w_grid)
+    wr     = lastindex(w_grid)
 
-        for i in 1 : vl - 1
-            val1 -= Π_slice[i]
-        end
+    @batch per = thread for iw in wl : wr
+        w         = w_grid[iw]
+        w_λ       = grids(λ, 1)[MatsubaraFunctions.grid_index_extrp(w, grids(λ, 1))]
+        Π_slice_l = view(Π, w, vl_Π : vl_λ - 1)
+        Π_slice_c = view(Π, w, vl_λ : vr_λ)
+        Π_slice_r = view(Π, w, vr_λ + 1 : vr_Π)
+        λ_slice   = view(λ, w_λ, vl_λ : vr_λ)
+        P[w]      = sum(Π_slice_l) * λ_slice[1] + mapreduce(*, +, Π_slice_c, λ_slice) + sum(Π_slice_r) * λ_slice[end]
+    end 
 
-        for i in vl : vr
-            val2 -= Π_slice[i] * λ_slice[i - vl + 1]
-        end
-
-        for i in vr + 1 : length(Π_slice)
-            val3 -= Π_slice[i]
-        end
-
-        val1 *= λ_slice[1]
-        val3 *= λ_slice[end]
-        P[w]  = val1 + val2 + val3
-    end
-
-    mult!(P, T)
+    mult!(P, -T)
     return P
 end
 

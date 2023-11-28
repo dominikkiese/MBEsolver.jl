@@ -80,24 +80,24 @@ function calc_M!(M :: MF3, Π :: MF2, T :: MF3, M_S :: MF3, SG :: MSG3, :: Type{
 
         w, v, vp  = wtpl 
         val       = 0.0
-        v1, v2    = grids(Π, 2)(grids(T, 2)[1]), grids(Π, 2)(grids(T, 2)[end])
-        Π_slice   = view(Π, w, v1 : v2)
+        vl_T      = firstindex(grids(T, 2))
+        vr_T      = lastindex(grids(T, 2))
+        vl_M      = firstindex(grids(M, 2))
+        vr_M      = lastindex(grids(M, 2))
+        Π_slice   = view(Π, w, Base.IdentityUnitRange(vl_T : vr_T))
         M_S_slice = view(M_S, w, :, vp)
         T_L_slice = view(T, w, :, vp) 
         T_R_slice = view(T, w, :, v)
 
-        vl = grids(T, 2)(grids(M_S, 2)[1])
-        vr = grids(T, 2)(grids(M_S, 2)[end])
-
-        for i in 1 : vl - 1
-            val += (T_L_slice[i] - M_S_slice[1]) * Π_slice[i] * T_R_slice[i]
+        for i in vl_T : vl_M - 1
+            val += (T_L_slice[i] - M_S_slice[vl_M]) * Π_slice[i] * T_R_slice[i]
         end 
 
-        for i in vl : vr
-            val += (T_L_slice[i] - M_S_slice[i - vl + 1]) * Π_slice[i] * T_R_slice[i]
+        for i in vl_M : vr_M
+            val += (T_L_slice[i] - M_S_slice[i]) * Π_slice[i] * T_R_slice[i]
         end
 
-        for i in vr + 1 : length(T_L_slice)
+        for i in vr_M + 1 : vr_T
             val += (T_L_slice[i] - M_S_slice[end]) * Π_slice[i] * T_R_slice[i]
         end
 
@@ -115,25 +115,24 @@ function calc_M!(M :: MF3, Π :: MF2, T :: MF3, M_T :: MF3, SG :: MSG3, :: Type{
 
         w, v, vp  = wtpl 
         val       = 0.0
-        v1, v2    = grids(Π, 2)(grids(T, 2)[1]), grids(Π, 2)(grids(T, 2)[end])
-        Π_slice   = view(Π, w, v1 : v2)
+        vl_T      = firstindex(grids(T, 2))
+        vr_T      = lastindex(grids(T, 2))
+        vl_M      = firstindex(grids(M, 2))
+        vr_M      = lastindex(grids(M, 2))
+        Π_slice   = view(Π, w, Base.IdentityUnitRange(vl_T : vr_T))
         M_T_slice = view(M_T, w, :, vp)
         T_L_slice = view(T, w, :, vp) 
         T_R_slice = view(T, w, :, v)
 
-        # additional minus sign from use of crossing symmetry
-        vl = grids(T, 2)(grids(M_T, 2)[1])
-        vr = grids(T, 2)(grids(M_T, 2)[end])
-
-        for i in 1 : vl - 1
-            val -= (T_L_slice[i] - M_T_slice[1]) * Π_slice[i] * T_R_slice[i]
+        for i in vl_T : vl_M - 1
+            val -= (T_L_slice[i] - M_T_slice[vl_M]) * Π_slice[i] * T_R_slice[i]
         end 
 
-        for i in vl : vr
-            val -= (T_L_slice[i] - M_T_slice[i - vl + 1]) * Π_slice[i] * T_R_slice[i]
+        for i in vl_M : vr_M
+            val -= (T_L_slice[i] - M_T_slice[i]) * Π_slice[i] * T_R_slice[i]
         end
 
-        for i in vr + 1 : length(T_L_slice)
+        for i in vr_M + 1 : vr_T
             val -= (T_L_slice[i] - M_T_slice[end]) * Π_slice[i] * T_R_slice[i]
         end
 
@@ -152,24 +151,24 @@ function calc_M!(M :: MF3, Π :: MF2, T :: MF3, M_D :: MF3, SG :: MSG3, :: Type{
 
         w, v, vp  = wtpl 
         val       = 0.0
-        v1, v2    = grids(Π, 2)(grids(T, 3)[1]), grids(Π, 2)(grids(T, 3)[end])
-        Π_slice   = view(Π, w, v1 : v2)
+        vl_T      = firstindex(grids(T, 3))
+        vr_T      = lastindex(grids(T, 3))
+        vl_M      = firstindex(grids(M, 3))
+        vr_M      = lastindex(grids(M, 3))
+        Π_slice   = view(Π, w, Base.IdentityUnitRange(vl_T : vr_T))
         M_D_slice = view(M_D, w, v, :)
         T_L_slice = view(T, w, v, :)
         T_R_slice = view(T, w, vp, :)
 
-        vl = grids(T, 3)(grids(M_D, 3)[1])
-        vr = grids(T, 3)(grids(M_D, 3)[end])
-
-        for i in 1 : vl - 1
-            val -= (T_L_slice[i] - M_D_slice[1]) * Π_slice[i] * T_R_slice[i]
+        for i in vl_T : vl_M - 1
+            val -= (T_L_slice[i] - M_D_slice[vl_M]) * Π_slice[i] * T_R_slice[i]
         end 
 
-        for i in vl : vr
-            val -= (T_L_slice[i] - M_D_slice[i - vl + 1]) * Π_slice[i] * T_R_slice[i]
+        for i in vl_M : vr_M
+            val -= (T_L_slice[i] - M_D_slice[i]) * Π_slice[i] * T_R_slice[i]
         end
 
-        for i in vr + 1 : length(T_L_slice)
+        for i in vr_M + 1 : vr_T
             val -= (T_L_slice[i] - M_D_slice[end]) * Π_slice[i] * T_R_slice[i]
         end
 
