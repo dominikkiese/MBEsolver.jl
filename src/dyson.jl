@@ -1,44 +1,46 @@
-# fermionic Dyson equation for G
-function calc_G(G0 :: MF1, Σ :: MF1) :: MF1
-
-    G = copy(G0)
-
+# fermionic Dyson equation for G (no extrapolation for Σ)
+function calc_G!(G :: G_t, G0 :: G_t, Σ :: G_t) :: Nothing
     for v in grids(G, 1)
-        # positive sign for Σ since (-i was factored out)
-        G[v] = 1.0 / (1.0 / G0[v] + Σ(v))
-    end 
+        G0_ij = SMatrix{2, 2, ComplexF64}(view(G0, v, :, :))
+        G_ij  = view(G, v, :, :)
 
-    return G
-end
-
-# bosonic Dyson equation for η (iterative form empirically more stable)
-function calc_η(P :: MF1, η :: MF1, val :: Float64) :: MF1
-
-    ηp = copy(P)
-
-    for w in grids(P, 1)
-        ηp[w] = val * (1.0 + P[w] * η[w])
-    end 
-
-    return ηp 
-end
-
-# bubble functions Π
-function calc_Π!(Π_pp :: MF2, Π_ph :: MF2, G :: MF1) :: Nothing 
-    
-    v_grid = grids(Π_pp, 2)
-    vl_Π   = firstindex(v_grid)
-    vr_Π   = lastindex(v_grid)
-
-    @batch per = thread for iv in vl_Π : vr_Π
-        v = v_grid[iv]
-        g = G(v)
-        
-        for w in grids(Π_pp, 1)
-            Π_pp[w, v] = g * G(w - v)
-            Π_ph[w, v] = g * G(w + v)
+        if is_inbounds(v, grids(Σ, 1))
+            Σ_ij  = SMatrix{2, 2, ComplexF64}(view(Σ, v, :, :))
+            G_ij .= inv(inv(G0_ij) - Σ_ij)
+        else 
+            G_ij .= G0_ij 
         end
-    end
+    end 
+end
 
-    return nothing 
+# bosonic Dyson equation in particle-particle channel
+function calc_η_pp!(η :: P_t, P :: P_t, F0 :: Array{ComplexF64, 4}) :: Nothing
+    ηp = MatsubaraFunction(η)
+    set!(η, 0.0)
+
+    Threads.@threads for w in grids(η, 1)
+        η_w  = view(η, w, :, :, :, :)
+        P_w  = view(P, w, :, :, :, :)
+        ηp_w = view(ηp, w, :, :, :, :)
+
+        # calculate tensor contraction
+        η_w .= F0
+        @tullio η_w[x1p, x1, x2p, x2] += F0[x3, x1, x4, x2] * P_w[x5, x3, x6, x4] * ηp_w[x1p, x5, x2p, x6]
+    end 
+end
+
+# bosonic Dyson equation in particle-hole channel
+function calc_η_ph!(η :: P_t, P :: P_t, F0 :: Array{ComplexF64, 4}) :: Nothing
+    ηp = MatsubaraFunction(η)
+    set!(η, 0.0)
+
+    Threads.@threads for w in grids(η, 1)
+        η_w  = view(η, w, :, :, :, :)
+        P_w  = view(P, w, :, :, :, :)
+        ηp_w = view(ηp, w, :, :, :, :)
+
+        # calculate tensor contraction
+        η_w .= F0
+        @tullio η_w[x1p, x1, x2p, x2] += F0[x1p, x1, x3, x4] * P_w[x4, x3, x5, x6] * ηp_w[x6, x5, x2p, x2]
+    end 
 end

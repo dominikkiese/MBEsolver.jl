@@ -1,62 +1,45 @@
-# polarization in singlet channel
-function calc_P(λ :: MF2, Π :: MF2, num_w :: Int64, :: Type{ch_S}) :: MF1
-
-    # generate container for P
-    T = temperature(Π)
-    P = MatsubaraFunction(MatsubaraGrid(T, num_w, Boson); data_t = Float64)
+# polarization in particle-particle channel
+function calc_P_pp!(P :: P_t, G :: G_t, λ :: λ_t) :: Nothing 
     set!(P, 0.0)
 
-    w_grid = grids(P, 1)
-    vl_Π   = firstindex(grids(Π, 2))
-    vr_Π   = lastindex(grids(Π, 2))
-    vl_λ   = firstindex(grids(λ, 2))
-    vr_λ   = lastindex(grids(λ, 2))
-    wl     = firstindex(w_grid)
-    wr     = lastindex(w_grid)
- 
-    @batch per = thread for iw in wl : wr
-        w         = w_grid[iw]
-        w_λ       = grids(λ, 1)[MatsubaraFunctions.grid_index_extrp(w, grids(λ, 1))]
-        Π_slice_l = view(Π, w, vl_Π : vl_λ - 1)
-        Π_slice_c = view(Π, w, vl_λ : vr_λ)
-        Π_slice_r = view(Π, w, vr_λ + 1 : vr_Π)
-        λ_slice   = view(λ, w_λ, vl_λ : vr_λ)
-        P[w]      = sum(Π_slice_l) * λ_slice[1] + mapreduce(*, +, Π_slice_c, λ_slice) + sum(Π_slice_r) * λ_slice[end]
+    Threads.@threads for w in grids(P, 1)
+        P_w   = view(P, w, :, :, :, :)
+        idx_w = MatsubaraFunctions.grid_index_extrp(w, grids(λ, 1))
+
+        for v in grids(G, 1)
+            G1_v  = view(G, v, :, :)
+            G2_v  = slice_extrp(G, w - v)
+            idx_v = MatsubaraFunctions.grid_index_extrp(w - v, grids(λ, 2))
+            λ_v   = view(λ, idx_w, idx_v, :, :, :, :)
+
+            # calculate tensor contraction
+            @tullio P_w[x1p, x1, x2p, x2] += G1_v[x1, x3] * G2_v[x2, x4] * λ_v[x1p, x3, x2p, x4]
+        end
     end 
 
-    mult!(P, 0.5 * T)
-    return P
-end 
-
-# polarization in density channel
-function calc_P(λ :: MF2, Π :: MF2, num_w :: Int64, :: Type{ch_D}) :: MF1
-
-    # generate container for P
-    T = temperature(Π)
-    P = MatsubaraFunction(MatsubaraGrid(T, num_w, Boson); data_t = Float64)
-    set!(P, 0.0)
-
-    w_grid = grids(P, 1)
-    vl_Π   = firstindex(grids(Π, 2))
-    vr_Π   = lastindex(grids(Π, 2))
-    vl_λ   = firstindex(grids(λ, 2))
-    vr_λ   = lastindex(grids(λ, 2))
-    wl     = firstindex(w_grid)
-    wr     = lastindex(w_grid)
-
-    @batch per = thread for iw in wl : wr
-        w         = w_grid[iw]
-        w_λ       = grids(λ, 1)[MatsubaraFunctions.grid_index_extrp(w, grids(λ, 1))]
-        Π_slice_l = view(Π, w, vl_Π : vl_λ - 1)
-        Π_slice_c = view(Π, w, vl_λ : vr_λ)
-        Π_slice_r = view(Π, w, vr_λ + 1 : vr_Π)
-        λ_slice   = view(λ, w_λ, vl_λ : vr_λ)
-        P[w]      = sum(Π_slice_l) * λ_slice[1] + mapreduce(*, +, Π_slice_c, λ_slice) + sum(Π_slice_r) * λ_slice[end]
-    end 
-
-    mult!(P, -T)
-    return P
+    mult!(P, -0.5 * temperature(P))
+    return nothing 
 end
 
-# polarization in magnetic channel
-calc_P(λ :: MF2, Π :: MF2, num_w :: Int64, :: Type{ch_M}) :: MF1 = calc_P(λ, Π, num_w, ch_D)
+# polarization in particle-hole channel
+function calc_P_ph!(P :: P_t, G :: G_t, λ :: λ_t) :: Nothing 
+    set!(P, 0.0)
+    
+    Threads.@threads for w in grids(P, 1)
+        P_w   = view(P, w, :, :, :, :)
+        idx_w = MatsubaraFunctions.grid_index_extrp(w, grids(λ, 1))
+
+        for v in grids(G, 1)
+            G1_v  = slice_extrp(G, w + v)
+            G2_v  = view(G, v, :, :)
+            idx_v = MatsubaraFunctions.grid_index_extrp(v, grids(λ, 2))
+            λ_v   = view(λ, idx_w, idx_v, :, :, :, :)
+
+            # calculate tensor contraction
+            @tullio P_w[x1p, x1, x2p, x2] += G1_v[x1, x3] * G2_v[x4, x1p] * λ_v[x4, x3, x2p, x2]
+        end
+    end 
+
+    mult!(P, temperature(P))
+    return nothing 
+end

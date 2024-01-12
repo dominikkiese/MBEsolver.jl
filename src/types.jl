@@ -6,18 +6,11 @@ struct ch_D <: Channel end
 struct ch_M <: Channel end
 
 # MatsubaraFunction aliases
-const MF1 = MatsubaraFunction{1, 0, 1, Float64}
-const MF2 = MatsubaraFunction{2, 0, 2, Float64}
-const MF3 = MatsubaraFunction{3, 0, 3, Float64}
+const G_t = MatsubaraFunction{1, 2, 3, ComplexF64}
+const P_t = MatsubaraFunction{1, 4, 5, ComplexF64}
+const λ_t = MatsubaraFunction{2, 4, 6, ComplexF64}
 
-# MatsubaraSymmetry aliases
-const MS2 = MatsubaraSymmetry{2, 0}
-const MS3 = MatsubaraSymmetry{3, 0}
-
-# MatsubaraSymmetryGroup aliases
-const MSG2 = MatsubaraSymmetryGroup{2, 0, 2, Float64}
-const MSG3 = MatsubaraSymmetryGroup{3, 0, 3, Float64}
-
-# MatsubaraInitFunction aliases
-const MIF2 = MatsubaraInitFunction{2, 0, Float64}
-const MIF3 = MatsubaraInitFunction{3, 0, Float64}
+# helper function for extrapolation (generalize and put into MatsubaraFunctions?)
+function slice_extrp(f :: G_t, v :: AbstractMatsubaraFrequency)
+    return SMatrix{2, 2, ComplexF64}(f(v, 1, 1), f(v, 2, 1), f(v, 1, 2), f(v, 2, 2))
+end 
