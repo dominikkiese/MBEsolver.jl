@@ -13,7 +13,7 @@ function calc_P_pp!(P :: P_t, G :: G_t, λ :: λ_t) :: Nothing
             λ_v   = view(λ, idx_w, idx_v, :, :, :, :)
 
             # calculate tensor contraction
-            @tullio P_w[x1p, x1, x2p, x2] += G1_v[x1, x3] * G2_v[x2, x4] * λ_v[x1p, x3, x2p, x4]
+            Tullio.@einsum P_w[x1p, x1, x2p, x2] += G1_v[x1, x3] * G2_v[x2, x4] * λ_v[x1p, x3, x2p, x4]
         end
     end 
 
@@ -36,7 +36,7 @@ function calc_P_ph!(P :: P_t, G :: G_t, λ :: λ_t) :: Nothing
             λ_v   = view(λ, idx_w, idx_v, :, :, :, :)
 
             # calculate tensor contraction
-            @tullio P_w[x1p, x1, x2p, x2] += G1_v[x1, x3] * G2_v[x4, x1p] * λ_v[x4, x3, x2p, x2]
+            Tullio.@einsum P_w[x1p, x1, x2p, x2] += G1_v[x1, x3] * G2_v[x4, x1p] * λ_v[x4, x3, x2p, x2]
         end
     end 
 

@@ -27,7 +27,7 @@ function calc_T(
     λ_D_r   = view(λ_D, λ1_idx1, λ1_idx3, :, :, :, :)
     λ_M_r   = view(λ_M, λ1_idx1, λ1_idx3, :, :, :, :)
 
-    @tullio T[x1p, x1, x2p, x2] += 0.5 * λ_D_l[x1p, x1, x3, x4] * η_D_c[x4, x3, x5, x6] * λ_D_r[x2, x2p, x5, x6] - 
+    Tullio.@einsum T[x1p, x1, x2p, x2] += 0.5 * λ_D_l[x1p, x1, x3, x4] * η_D_c[x4, x3, x5, x6] * λ_D_r[x2, x2p, x5, x6] - 
         1.5 * λ_M_l[x1p, x1, x3, x4] * η_M_c[x4, x3, x5, x6] * λ_M_r[x2, x2p, x5, x6]
 
     w2      = vp - v
@@ -42,7 +42,7 @@ function calc_T(
     λ_D_r   = view(λ_D, λ2_idx1, λ2_idx2, :, :, :, :)
     λ_M_r   = view(λ_M, λ2_idx1, λ2_idx2, :, :, :, :)
 
-    @tullio T[x1p, x1, x2p, x2] += 0.5 * λ_D_l[x1p, x2, x3, x4] * η_D_c[x4, x3, x5, x6] * λ_D_r[x1, x2p, x5, x6] - 
+    Tullio.@einsum T[x1p, x1, x2p, x2] += 0.5 * λ_D_l[x1p, x2, x3, x4] * η_D_c[x4, x3, x5, x6] * λ_D_r[x1, x2p, x5, x6] - 
         1.5 * λ_M_l[x1p, x2, x3, x4] * η_M_c[x4, x3, x5, x6] * λ_M_r[x1, x2p, x5, x6]
 
     return T 
@@ -77,7 +77,7 @@ function calc_T(
     λ_D_r   = view(λ_D, λ1_idx1, λ1_idx3, :, :, :, :)
     λ_M_r   = view(λ_M, λ1_idx1, λ1_idx3, :, :, :, :)
 
-    @tullio T[x1p, x1, x2p, x2] += 0.5 * λ_D_l[x1p, x1, x3, x4] * η_D_c[x4, x3, x5, x6] * λ_D_r[x2, x2p, x5, x6] + 
+    Tullio.@einsum T[x1p, x1, x2p, x2] += 0.5 * λ_D_l[x1p, x1, x3, x4] * η_D_c[x4, x3, x5, x6] * λ_D_r[x2, x2p, x5, x6] + 
         0.5 * λ_M_l[x1p, x1, x3, x4] * η_M_c[x4, x3, x5, x6] * λ_M_r[x2, x2p, x5, x6]
 
     w2      = vp - v
@@ -92,7 +92,7 @@ function calc_T(
     λ_D_r   = view(λ_D, λ2_idx1, λ2_idx2, :, :, :, :)
     λ_M_r   = view(λ_M, λ2_idx1, λ2_idx2, :, :, :, :)
 
-    @tullio T[x1p, x1, x2p, x2] += -0.5 * λ_D_l[x1p, x2, x3, x4] * η_D_c[x4, x3, x5, x6] * λ_D_r[x1, x2p, x5, x6] - 
+    Tullio.@einsum T[x1p, x1, x2p, x2] += -0.5 * λ_D_l[x1p, x2, x3, x4] * η_D_c[x4, x3, x5, x6] * λ_D_r[x1, x2p, x5, x6] - 
         0.5 * λ_M_l[x1p, x2, x3, x4] * η_M_c[x4, x3, x5, x6] * λ_M_r[x1, x2p, x5, x6]
 
     return T 
@@ -131,7 +131,7 @@ function calc_T(
     λ_S_r   = view(λ_S, λ1_idx1, λ1_idx3, :, :, :, :)
     λ_T_r   = view(λ_T, λ1_idx1, λ1_idx3, :, :, :, :)
 
-    @tullio T[x1p, x1, x2p, x2] += 0.5 * λ_S_l[x3, x1, x4, x2] * η_S_c[x5, x3, x6, x4] * λ_S_r[x6, x2p, x5, x1p] + 
+    Tullio.@einsum T[x1p, x1, x2p, x2] += 0.5 * λ_S_l[x3, x1, x4, x2] * η_S_c[x5, x3, x6, x4] * λ_S_r[x6, x2p, x5, x1p] + 
         1.5 * λ_T_l[x3, x1, x4, x2] * η_T_c[x5, x3, x6, x4] * λ_T_r[x6, x2p, x5, x1p]
 
     w2      = vp - v
@@ -146,7 +146,7 @@ function calc_T(
     λ_D_r   = view(λ_D, λ2_idx1, λ2_idx2, :, :, :, :)
     λ_M_r   = view(λ_M, λ2_idx1, λ2_idx2, :, :, :, :)
 
-    @tullio T[x1p, x1, x2p, x2] += -0.5 * λ_D_l[x1p, x2, x3, x4] * η_D_c[x4, x3, x5, x6] * λ_D_r[x1, x2p, x5, x6] - 
+    Tullio.@einsum T[x1p, x1, x2p, x2] += -0.5 * λ_D_l[x1p, x2, x3, x4] * η_D_c[x4, x3, x5, x6] * λ_D_r[x1, x2p, x5, x6] - 
         1.5 * λ_M_l[x1p, x2, x3, x4] * η_M_c[x4, x3, x5, x6] * λ_M_r[x1, x2p, x5, x6]
 
     return T 
@@ -185,7 +185,7 @@ function calc_T(
     λ_S_r   = view(λ_S, λ1_idx1, λ1_idx3, :, :, :, :)
     λ_T_r   = view(λ_T, λ1_idx1, λ1_idx3, :, :, :, :)
 
-    @tullio T[x1p, x1, x2p, x2] += -0.5 * λ_S_l[x3, x1, x4, x2] * η_S_c[x5, x3, x6, x4] * λ_S_r[x6, x2p, x5, x1p] + 
+    Tullio.@einsum T[x1p, x1, x2p, x2] += -0.5 * λ_S_l[x3, x1, x4, x2] * η_S_c[x5, x3, x6, x4] * λ_S_r[x6, x2p, x5, x1p] + 
         0.5 * λ_T_l[x3, x1, x4, x2] * η_T_c[x5, x3, x6, x4] * λ_T_r[x6, x2p, x5, x1p]
 
     w2      = vp - v
@@ -200,7 +200,7 @@ function calc_T(
     λ_D_r   = view(λ_D, λ2_idx1, λ2_idx2, :, :, :, :)
     λ_M_r   = view(λ_M, λ2_idx1, λ2_idx2, :, :, :, :)
 
-    @tullio T[x1p, x1, x2p, x2] += -0.5 * λ_D_l[x1p, x2, x3, x4] * η_D_c[x4, x3, x5, x6] * λ_D_r[x1, x2p, x5, x6] + 
+    Tullio.@einsum T[x1p, x1, x2p, x2] += -0.5 * λ_D_l[x1p, x2, x3, x4] * η_D_c[x4, x3, x5, x6] * λ_D_r[x1, x2p, x5, x6] + 
         0.5 * λ_M_l[x1p, x2, x3, x4] * η_M_c[x4, x3, x5, x6] * λ_M_r[x1, x2p, x5, x6]
 
     return T 

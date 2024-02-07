@@ -18,7 +18,7 @@ function calc_Σ!(
         Σ_v = view(Σ, v, :, :)
 
         # summation of 1/iν Hartree tail
-        @tullio Σ_v[x1, x1p] = -(0.25 * F0_D[x3, x1, x1p, x3] + 0.75 * F0_M[x3, x1, x1p, x3])
+        Tullio.@einsum Σ_v[x1, x1p] = -(0.25 * F0_D[x3, x1, x1p, x3] + 0.75 * F0_M[x3, x1, x1p, x3])
 
         for vp in grids(G, 1)
             inv_vp = 1.0 / (im * value(vp))
@@ -32,11 +32,11 @@ function calc_Σ!(
             λ_M_vp = view(λ_M, λ_idx1, λ_idx2, :, :, :, :)
             
             # Hartree contribution
-            @tullio Σ_v[x1, x1p] += -T * (0.5 * F0_D[x3, x1, x1p, x4] + 1.5 * F0_M[x3, x1, x1p, x4]) * 
+            Tullio.@einsum Σ_v[x1, x1p] += -T * (0.5 * F0_D[x3, x1, x1p, x4] + 1.5 * F0_M[x3, x1, x1p, x4]) * 
                (G_vp[x3, x4] - inv_vp * δ[x3, x4])
 
             # vertex corrections
-            @tullio Σ_v[x1, x1p] += -T * (0.25 * (2.0 * η_D_vp[x3, x1, x5, x6] - F0_D[x3, x1, x5, x6]) * λ_D_vp[x4, x1p, x5, x6] + 
+            Tullio.@einsum Σ_v[x1, x1p] += -T * (0.25 * (2.0 * η_D_vp[x3, x1, x5, x6] - F0_D[x3, x1, x5, x6]) * λ_D_vp[x4, x1p, x5, x6] + 
                 0.75 * (2.0 * η_M_vp[x3, x1, x5, x6] - F0_M[x3, x1, x5, x6]) * λ_M_vp[x4, x1p, x5, x6]) * G_vp[x3, x4]
         end 
     end

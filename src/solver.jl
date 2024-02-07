@@ -3,8 +3,7 @@ mutable struct Solver
     const T :: Float64 
     const U :: Float64 
     const J :: Float64 
-    const V :: Float64 
-    const D :: Float64 
+    const Δ :: Float64 
     const μ :: Float64
 
     # parameters for periodic Pulay mixing
@@ -52,8 +51,7 @@ mutable struct Solver
         T       :: Float64,
         U       :: Float64,
         J       :: Float64, 
-        V       :: Float64,
-        D       :: Float64,
+        Δ       :: Float64,
         μ       :: Float64,
         num_G   :: Int64,
         num_Σ   :: Int64, 
@@ -76,7 +74,7 @@ mutable struct Solver
 
         for v in grid_G
             G0_ij               = view(G0, v, :, :)
-            @tullio G0_ij[i, j] = δ[i, j] / (im * value(v) - μ + im * V * V / D * atan(D / value(v)))
+            @tullio G0_ij[i, j] = δ[i, j] / (im * value(v) - μ + im * Δ * sign(value(v)))
         end
 
         G = MatsubaraFunction(grid_G, 2, 2)
@@ -152,7 +150,7 @@ mutable struct Solver
         set!(Σ, 0.0)
 
         # build the solver 
-        return new(T, U, J, V, D, μ,
+        return new(T, U, J, Δ, μ,
                 m, p, α, atol, rtol, iters, 
                 G0, G, Σ,
                 F0_S, F0_T, F0_D, F0_M,
@@ -361,8 +359,7 @@ function save_solver!(
     attributes(file)["T"]     = S.T 
     attributes(file)["U"]     = S.U 
     attributes(file)["J"]     = S.J
-    attributes(file)["V"]     = S.V
-    attributes(file)["D"]     = S.D
+    attributes(file)["Δ"]     = S.Δ
     attributes(file)["μ"]     = S.μ
     attributes(file)["m"]     = S.m
     attributes(file)["p"]     = S.p
